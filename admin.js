@@ -12,6 +12,8 @@
   var content = loadInitialContent();
   var classroomTasks = [];
   var classroomBridgeFrame = null;
+  var classroomBridgeWindow = null;
+  var classroomBridgeOrigin = '';
   var classroomBridgeReadyUrl = '';
 
   if (!isAdminSession()) {
@@ -665,14 +667,35 @@
     return parsed.toString();
   }
 
+  function isAllowedClassroomBridgeOrigin(origin) {
+    var parsed;
+
+    try {
+      parsed = new URL(origin);
+    } catch (error) {
+      return false;
+    }
+
+    return parsed.protocol === 'https:' && (
+      parsed.hostname === 'script.google.com' ||
+      parsed.hostname === 'script.googleusercontent.com' ||
+      parsed.hostname.endsWith('.googleusercontent.com')
+    );
+  }
+
   function ensureClassroomBridge(url) {
     return new Promise(function (resolve, reject) {
-      if (classroomBridgeFrame && classroomBridgeReadyUrl === url && classroomBridgeFrame.contentWindow) {
-        resolve(classroomBridgeFrame);
+      if (classroomBridgeWindow && classroomBridgeReadyUrl === url) {
+        resolve({
+          source: classroomBridgeWindow,
+          origin: classroomBridgeOrigin
+        });
         return;
       }
 
       if (classroomBridgeFrame) classroomBridgeFrame.remove();
+      classroomBridgeWindow = null;
+      classroomBridgeOrigin = '';
       classroomBridgeReadyUrl = '';
 
       classroomBridgeFrame = document.createElement('iframe');
@@ -691,13 +714,18 @@
       }, 45000);
 
       function handleReady(event) {
-        if (!classroomBridgeFrame || event.source !== classroomBridgeFrame.contentWindow) return;
         if (!event.data || event.data.type !== 'classroomBridgeReady') return;
+        if (!isAllowedClassroomBridgeOrigin(event.origin)) return;
 
         window.clearTimeout(timeout);
         window.removeEventListener('message', handleReady);
+        classroomBridgeWindow = event.source;
+        classroomBridgeOrigin = event.origin;
         classroomBridgeReadyUrl = url;
-        resolve(classroomBridgeFrame);
+        resolve({
+          source: classroomBridgeWindow,
+          origin: classroomBridgeOrigin
+        });
       }
 
       window.addEventListener('message', handleReady);
@@ -706,7 +734,7 @@
   }
 
   function postClassroomBridge(url, payload) {
-    return ensureClassroomBridge(url).then(function (frame) {
+    return ensureClassroomBridge(url).then(function (bridge) {
       return new Promise(function (resolve, reject) {
         var requestId = 'dipcc-classroom-' + Date.now() + '-' + Math.random().toString(36).slice(2);
         var timeout = window.setTimeout(function () {
@@ -715,7 +743,8 @@
         }, CLASSROOM_BRIDGE_TIMEOUT_MS);
 
         function handleResponse(event) {
-          if (event.source !== frame.contentWindow) return;
+          if (event.source !== bridge.source) return;
+          if (!isAllowedClassroomBridgeOrigin(event.origin)) return;
           if (!event.data || event.data.type !== 'classroomBridgeResult' || event.data.requestId !== requestId) return;
 
           window.clearTimeout(timeout);
@@ -730,11 +759,11 @@
         }
 
         window.addEventListener('message', handleResponse);
-        frame.contentWindow.postMessage({
+        bridge.source.postMessage({
           type: 'classroomBridgeRequest',
           requestId: requestId,
           payload: payload
-        }, '*');
+        }, bridge.origin || '*');
       });
     });
   }

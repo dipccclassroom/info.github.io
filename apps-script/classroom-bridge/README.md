@@ -20,6 +20,8 @@ This Apps Script web app lets the static admin dashboard create scheduled Google
 
 The deploying Google account must be a teacher in every Classroom course ID you use. Because "Execute as: Me" creates work as the deploying account, keep the Web App URL and `BRIDGE_SECRET` private.
 
+When you change `Code.gs`, create a new Apps Script deployment version or edit the existing deployment to point at the latest version. Otherwise the dashboard will keep calling the old bridge code.
+
 ## CSV Format
 
 Use these headers:
