@@ -22,6 +22,16 @@ The deploying Google account must be a teacher in every Classroom course ID you 
 
 When you change `Code.gs`, create a new Apps Script deployment version or edit the existing deployment to point at the latest version. Otherwise the dashboard will keep calling the old bridge code.
 
+Run `testBridgeSetup()` from the Apps Script editor if you want to confirm script properties are visible. Do not run `handleBridgeRequest()` directly from the editor; it is only called by the dashboard and needs a request payload.
+
+If you set `DASHBOARD_ORIGIN`, use only the origin, not the full admin URL:
+
+```text
+https://dipccclassroom.github.io
+```
+
+If the dashboard says the response bridge is unavailable, it will submit through a hidden form fallback. That fallback can create Classroom tasks, but the browser cannot read row-level results, so check **Apps Script > Executions** and Classroom before retrying.
+
 ## CSV Format
 
 Use these headers:
@@ -43,6 +53,8 @@ Supported columns:
 - `workType`: `ASSIGNMENT`, `SHORT_ANSWER_QUESTION`, or `MULTIPLE_CHOICE_QUESTION`.
 - `state`: `DRAFT` or `PUBLISHED`. If omitted, rows with `scheduledAt` become `PUBLISHED`; rows without it stay `DRAFT`.
 - `choices`: required for `MULTIPLE_CHOICE_QUESTION`; separate choices with semicolons.
+
+Comma, semicolon, and tab-delimited CSV files are accepted. If a field itself contains the delimiter, wrap it in quotes.
 
 Example:
 

@@ -19,12 +19,16 @@ function doPost(e) {
 }
 
 function handleBridgeRequest(payload) {
-  const request = payload || {};
+  if (!payload) {
+    throw new Error('handleBridgeRequest is called by the dashboard. Run testBridgeSetup from the Apps Script editor instead.');
+  }
+
+  const request = payload;
   const lock = LockService.getScriptLock();
 
   lock.waitLock(30000);
   try {
-    verifyOrigin_(request.origin || '');
+    verifyOrigin_(request.origin || request.dashboardOrigin || '');
     verifySecret_(request.secret || '');
 
     if (request.action !== 'createCourseworkBatch') {
@@ -35,6 +39,19 @@ function handleBridgeRequest(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function testBridgeSetup() {
+  const properties = PropertiesService.getScriptProperties();
+  const result = {
+    ok: true,
+    bridgeSecretConfigured: Boolean(properties.getProperty(BRIDGE_SECRET_PROPERTY)),
+    dashboardOrigin: properties.getProperty(DASHBOARD_ORIGIN_PROPERTY) || '',
+    message: 'Setup function ran. Use the dashboard, not handleBridgeRequest, to create Classroom tasks.'
+  };
+
+  Logger.log(JSON.stringify(result, null, 2));
+  return result;
 }
 
 function createCourseworkBatch_(courseId, rows) {
@@ -252,11 +269,15 @@ function verifyOrigin_(origin) {
     .filter(Boolean);
 
   if (allowedOrigins.indexOf(origin) === -1) {
-    throw new Error('Dashboard origin is not allowed: ' + origin);
+    throw new Error('Dashboard origin is not allowed: ' + (origin || '(empty)') + '. Add only the origin, such as https://dipccclassroom.github.io, to DASHBOARD_ORIGIN.');
   }
 }
 
 function parsePayload_(e) {
+  if (e && e.parameter && e.parameter.payload) {
+    return JSON.parse(e.parameter.payload);
+  }
+
   if (!e || !e.postData || !e.postData.contents) throw new Error('Missing POST body.');
   return JSON.parse(e.postData.contents);
 }
@@ -287,7 +308,7 @@ function getBridgeHtml_() {
     '    var message = event.data || {};',
     '    if (message.type !== "classroomBridgeRequest") return;',
     '    var payload = message.payload || {};',
-    '    payload.origin = event.origin || "";',
+    '    payload.origin = event.origin || payload.dashboardOrigin || "";',
     '    google.script.run',
     '      .withSuccessHandler(function (result) {',
     '        reply(event.source, { type: "classroomBridgeResult", requestId: message.requestId, ok: true, result: result }, event.origin);',

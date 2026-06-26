@@ -161,11 +161,36 @@
       .filter(Boolean);
   }
 
-  function parseCsv(text) {
+  function detectCsvDelimiter(text) {
+    var counts = { ',': 0, ';': 0, '\t': 0 };
+    var inQuotes = false;
+
+    for (var i = 0; i < text.length; i += 1) {
+      var char = text[i];
+      var next = text[i + 1];
+
+      if (char === '"' && inQuotes && next === '"') {
+        i += 1;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if ((char === '\n' || char === '\r') && !inQuotes) {
+        break;
+      } else if (!inQuotes && Object.prototype.hasOwnProperty.call(counts, char)) {
+        counts[char] += 1;
+      }
+    }
+
+    return Object.keys(counts).reduce(function (best, delimiter) {
+      return counts[delimiter] > counts[best] ? delimiter : best;
+    }, ',');
+  }
+
+  function parseCsv(text, delimiter) {
     var rows = [];
     var row = [];
     var cell = '';
     var inQuotes = false;
+    delimiter = delimiter || detectCsvDelimiter(text);
 
     for (var i = 0; i < text.length; i += 1) {
       var char = text[i];
@@ -176,7 +201,7 @@
         i += 1;
       } else if (char === '"') {
         inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === delimiter && !inQuotes) {
         row.push(cell.trim());
         cell = '';
       } else if ((char === '\n' || char === '\r') && !inQuotes) {
@@ -670,6 +695,8 @@
   function isAllowedClassroomBridgeOrigin(origin) {
     var parsed;
 
+    if (origin === 'null') return true;
+
     try {
       parsed = new URL(origin);
     } catch (error) {
@@ -681,6 +708,10 @@
       parsed.hostname === 'script.googleusercontent.com' ||
       parsed.hostname.endsWith('.googleusercontent.com')
     );
+  }
+
+  function getBridgeTargetOrigin(origin) {
+    return origin && origin !== 'null' ? origin : '*';
   }
 
   function ensureClassroomBridge(url) {
@@ -709,8 +740,10 @@
       classroomBridgeFrame.style.top = '-9999px';
 
       var timeout = window.setTimeout(function () {
+        var error = new Error('Apps Script bridge did not become ready.');
+        error.code = 'BRIDGE_NOT_READY';
         window.removeEventListener('message', handleReady);
-        reject(new Error('Apps Script bridge did not become ready. Open the Web App URL once to authorize it, then try again.'));
+        reject(error);
       }, 45000);
 
       function handleReady(event) {
@@ -763,8 +796,68 @@
           type: 'classroomBridgeRequest',
           requestId: requestId,
           payload: payload
-        }, bridge.origin || '*');
+        }, getBridgeTargetOrigin(bridge.origin));
       });
+    });
+  }
+
+  function submitClassroomBridgeForm(url, payload) {
+    return new Promise(function (resolve, reject) {
+      var frameName = 'dipcc-classroom-submit-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+      var iframe = document.createElement('iframe');
+      var form = document.createElement('form');
+      var input = document.createElement('input');
+      var submitted = false;
+      var resolved = false;
+
+      function cleanup() {
+        form.remove();
+        iframe.remove();
+      }
+
+      function finish() {
+        if (resolved) return;
+        resolved = true;
+        resolve({
+          submitted: true,
+          total: classroomTasks.length
+        });
+        window.setTimeout(cleanup, 60000);
+      }
+
+      iframe.name = frameName;
+      iframe.title = 'Google Classroom Apps Script Submission';
+      iframe.style.position = 'absolute';
+      iframe.style.width = '1px';
+      iframe.style.height = '1px';
+      iframe.style.border = '0';
+      iframe.style.left = '-9999px';
+      iframe.style.top = '-9999px';
+      iframe.addEventListener('load', function () {
+        if (submitted) finish();
+      });
+
+      input.type = 'hidden';
+      input.name = 'payload';
+      input.value = JSON.stringify(payload);
+
+      form.method = 'POST';
+      form.action = url;
+      form.target = frameName;
+      form.acceptCharset = 'UTF-8';
+      form.style.display = 'none';
+      form.appendChild(input);
+
+      document.body.append(iframe, form);
+
+      try {
+        submitted = true;
+        form.submit();
+        window.setTimeout(finish, 8000);
+      } catch (error) {
+        cleanup();
+        reject(error);
+      }
     });
   }
 
@@ -775,6 +868,7 @@
     var courseId = courseSelect ? courseSelect.value : config.selectedCourseId;
     var secret = (secretInput ? secretInput.value.trim() : '') || getSessionItem(CLASSROOM_SECRET_KEY);
     var bridgeUrl;
+    var payload;
 
     try {
       bridgeUrl = validateBridgeUrl(config.bridgeUrl);
@@ -789,12 +883,14 @@
     setStatus('classroom', 'Sending ' + classroomTasks.length + ' tasks to Classroom. Do not retry until this finishes.', 'success');
 
     try {
-      var result = await postClassroomBridge(bridgeUrl, {
+      payload = {
         action: 'createCourseworkBatch',
         courseId: courseId,
         secret: secret,
+        dashboardOrigin: window.location.origin,
         rows: classroomTasks
-      });
+      };
+      var result = await postClassroomBridge(bridgeUrl, payload);
       var rows = result && Array.isArray(result.results) ? result.results : [];
       var errors = rows.filter(function (row) { return !row.ok; }).slice(0, 3).map(function (row) {
         return 'row ' + row.row + ': ' + row.error;
@@ -807,6 +903,17 @@
         errors.length ? 'error' : 'success'
       );
     } catch (error) {
+      if (error.code === 'BRIDGE_NOT_READY') {
+        try {
+          setStatus('classroom', 'Response bridge unavailable. Submitting via Apps Script form fallback...', 'success');
+          await submitClassroomBridgeForm(bridgeUrl, payload);
+          renderClassroomPreview();
+          setStatus('classroom', 'Submitted to Apps Script. Check Classroom and Apps Script Executions before retrying; this fallback cannot read row-level results.', 'success');
+        } catch (fallbackError) {
+          setStatus('classroom', 'Classroom form fallback error: ' + fallbackError.message, 'error');
+        }
+        return;
+      }
       setStatus('classroom', 'Classroom bridge error: ' + error.message, 'error');
     }
   }
