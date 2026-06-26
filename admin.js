@@ -476,9 +476,14 @@
 
   function normalizeCourseworkState(value, scheduledAt) {
     var normalized = String(value || '').trim().toUpperCase();
-    if (scheduledAt) return 'PUBLISHED';
+    if (scheduledAt) return 'DRAFT';
     if (['DRAFT', 'PUBLISHED'].indexOf(normalized) >= 0) return normalized;
     return 'DRAFT';
+  }
+
+  function getClassroomPreviewState(task) {
+    if (task.scheduledAt) return 'SCHEDULED';
+    return task.state || 'DRAFT';
   }
 
   function rowsToClassroomTasks(rows) {
@@ -581,7 +586,7 @@
         task.scheduledAt || '',
         task.dueAt || '',
         task.maxPoints || '',
-        result ? (result.ok ? 'Created: ' + result.id : 'Error: ' + result.error) : task.state
+        result ? (result.ok ? 'Created: ' + result.id : 'Error: ' + result.error) : getClassroomPreviewState(task)
       ];
 
       values.forEach(function (value) {
@@ -646,7 +651,7 @@
         '10',
         'https://example.com/reading.pdf',
         'ASSIGNMENT',
-        'PUBLISHED',
+        'DRAFT',
         ''
       ],
       [
@@ -659,7 +664,7 @@
         '',
         '',
         'MULTIPLE_CHOICE_QUESTION',
-        'PUBLISHED',
+        'DRAFT',
         'A;B;C;D'
       ]
     ];

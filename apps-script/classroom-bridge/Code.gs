@@ -199,7 +199,7 @@ function normalizeWorkType_(value) {
 
 function normalizeState_(value, scheduledAt) {
   const normalized = String(value || '').trim().toUpperCase();
-  if (scheduledAt) return 'PUBLISHED';
+  if (scheduledAt) return 'DRAFT';
   if (normalized === 'DRAFT' || normalized === 'PUBLISHED') return normalized;
   return 'DRAFT';
 }

@@ -51,7 +51,7 @@ Supported columns:
 - `maxPoints`: optional non-negative number.
 - `materialUrl`: optional `http://` or `https://` link. Use semicolons for multiple links.
 - `workType`: `ASSIGNMENT`, `SHORT_ANSWER_QUESTION`, or `MULTIPLE_CHOICE_QUESTION`.
-- `state`: `DRAFT` or `PUBLISHED`. If omitted, rows with `scheduledAt` become `PUBLISHED`; rows without it stay `DRAFT`.
+- `state`: `DRAFT` or `PUBLISHED`. Rows with `scheduledAt` are sent to Classroom as `DRAFT` with `scheduledTime`; Classroom publishes them at the scheduled time.
 - `choices`: required for `MULTIPLE_CHOICE_QUESTION`; separate choices with semicolons.
 
 Comma, semicolon, and tab-delimited CSV files are accepted. If a field itself contains the delimiter, wrap it in quotes.
@@ -60,8 +60,8 @@ Example:
 
 ```csv
 title,description,topic,topicId,scheduledAt,dueAt,maxPoints,materialUrl,workType,state,choices
-Chapter 1 Reading,Read pages 1-12 and submit notes.,Unit 1,,2026-09-01T09:00:00+03:00,2026-09-05T18:00:00+03:00,10,https://example.com/reading.pdf,ASSIGNMENT,PUBLISHED,
-Exit ticket,Choose the best answer.,Unit 1,,2026-09-02T09:00:00+03:00,,,,"MULTIPLE_CHOICE_QUESTION",PUBLISHED,A;B;C;D
+Chapter 1 Reading,Read pages 1-12 and submit notes.,Unit 1,,2026-09-01T09:00:00+03:00,2026-09-05T18:00:00+03:00,10,https://example.com/reading.pdf,ASSIGNMENT,DRAFT,
+Exit ticket,Choose the best answer.,Unit 1,,2026-09-02T09:00:00+03:00,,,,"MULTIPLE_CHOICE_QUESTION",DRAFT,A;B;C;D
 ```
 
 ## Notes
