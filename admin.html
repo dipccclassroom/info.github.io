@@ -88,7 +88,7 @@
         <div id="section-dates" style="display:none">
           <h2>&#9200; Important Dates</h2>
           <table class="table-editor">
-            <thead><tr><th>Date</th><th>Event</th><th>Type</th><th></th></tr></thead>
+            <thead><tr><th>Date</th><th>Event</th><th>Style</th><th></th></tr></thead>
             <tbody id="dates-body"></tbody>
           </table>
           <button class="btn-add-row" onclick="addDateRow()">+ Add Date</button>
@@ -107,7 +107,7 @@
         <div id="section-publish" style="display:none">
           <h2>&#128640; Publish Changes</h2>
           <div class="token-note">
-            <strong>How publishing works:</strong> Enter your GitHub Personal Access Token. The dashboard calls the GitHub API to update index.html, then GitHub Actions auto-deploys (30-60 sec).<br><br>
+            <strong>How publishing works:</strong> Enter your GitHub Personal Access Token. The dashboard calls the GitHub API to update data.js, then GitHub Actions auto-deploys (30-60 sec).<br><br>
             Create token: <strong>GitHub Settings &rarr; Developer settings &rarr; Personal access tokens &rarr; Fine-grained tokens</strong> &rarr; Contents: Read &amp; Write for this repo.<br><br>
             <strong>Your token is never stored</strong> — session memory only.
           </div>
@@ -127,189 +127,7 @@
   </div>
 
   <script src="auth-config.js"></script>
-  <script>
-    if (sessionStorage.getItem('dipcc_role') !== 'admin') {
-      window.location.href = 'login.html';
-    }
-
-    var defaults = {
-      schedule: [
-        {day:'Monday',time:'09:00-10:30',subject:'Mathematics',teacher:'Prof. Smith',room:'101'},
-        {day:'Monday',time:'11:00-12:30',subject:'English Literature',teacher:'Prof. Johnson',room:'204'},
-        {day:'Tuesday',time:'09:00-10:30',subject:'Physics',teacher:'Prof. Davis',room:'Lab 1'},
-        {day:'Wednesday',time:'13:00-14:30',subject:'Computer Science',teacher:'Prof. Lee',room:'302'},
-        {day:'Thursday',time:'09:00-10:30',subject:'History',teacher:'Prof. Brown',room:'105'},
-        {day:'Friday',time:'11:00-12:30',subject:'Physical Education',teacher:'Coach Miller',room:'Gym'}
-      ],
-      lessons: [
-        {title:'Introduction to Calculus',subject:'Mathematics',desc:'Limits, derivatives and basic integration. Chapter 1-3.'},
-        {title:'Shakespeare Sonnets',subject:'English',desc:'Analysis of selected sonnets. Read pages 45-78.'},
-        {title:'Newtons Laws of Motion',subject:'Physics',desc:'Forces, acceleration and friction experiments.'}
-      ],
-      dates: [
-        {date:'2026-07-15',event:'Midterm Examinations Begin',type:'exam'},
-        {date:'2026-07-20',event:'Midterm Examinations End',type:'exam'},
-        {date:'2026-08-01',event:'Summer Holiday Begins',type:'holiday'},
-        {date:'2026-09-01',event:'New Semester Starts',type:'semester'}
-      ],
-      contacts: [
-        {name:'Prof. Smith',role:'Mathematics Teacher',email:'smith@dipcc.edu',phone:'+1 234 567 8901'},
-        {name:'Prof. Johnson',role:'English Literature',email:'johnson@dipcc.edu',phone:'+1 234 567 8902'},
-        {name:'Administration',role:'Office',email:'admin@dipcc.edu',phone:'+1 234 567 8900'}
-      ]
-    };
-
-    function loadData(key) {
-      var s = localStorage.getItem('dipcc_' + key);
-      return s ? JSON.parse(s) : JSON.parse(JSON.stringify(defaults[key]));
-    }
-    function saveData(key, data) { localStorage.setItem('dipcc_' + key, JSON.stringify(data)); }
-
-    function showSection(name) {
-      ['schedule','lessons','dates','contacts','publish'].forEach(function(s,i) {
-        document.getElementById('section-'+s).style.display = s===name ? '' : 'none';
-        document.querySelectorAll('.sidebar-btn')[i].classList.toggle('active', s===name);
-      });
-    }
-
-    function renderSchedule() {
-      var data = loadData('schedule');
-      var tb = document.getElementById('schedule-body');
-      tb.innerHTML = '';
-      data.forEach(function(row, i) {
-        var tr = document.createElement('tr');
-        ['day','time','subject','teacher','room'].forEach(function(f) {
-          var td = document.createElement('td');
-          var inp = document.createElement('input');
-          inp.value = row[f] || '';
-          inp.addEventListener('change', (function(idx,field) { return function() { var d=loadData('schedule'); d[idx][field]=this.value; saveData('schedule',d); }; })(i,f));
-          td.appendChild(inp); tr.appendChild(td);
-        });
-        var tdDel = document.createElement('td');
-        var btn = document.createElement('button');
-        btn.className='del-btn'; btn.textContent='x';
-        btn.onclick = (function(idx){ return function(){ var d=loadData('schedule'); d.splice(idx,1); saveData('schedule',d); renderSchedule(); }; })(i);
-        tdDel.appendChild(btn); tr.appendChild(tdDel);
-        tb.appendChild(tr);
-      });
-    }
-    function addScheduleRow() { var d=loadData('schedule'); d.push({day:'',time:'',subject:'',teacher:'',room:''}); saveData('schedule',d); renderSchedule(); }
-
-    function renderLessons() {
-      var data = loadData('lessons');
-      var c = document.getElementById('lessons-list');
-      c.innerHTML = '';
-      data.forEach(function(lesson,i) {
-        var div = document.createElement('div');
-        div.className='lesson-card';
-        div.innerHTML = '<div class="card-header"><strong style="color:#c9d1d9">Lesson '+(i+1)+'</strong><button class="del-btn" onclick="deleteLesson('+i+')">Remove</button></div>' +
-          '<div class="field-group"><label>Title</label><input value="'+lesson.title+'" onchange="updateLesson('+i+','title',this.value)"></div>' +
-          '<div class="field-group"><label>Subject</label><input value="'+lesson.subject+'" onchange="updateLesson('+i+','subject',this.value)"></div>' +
-          '<div class="field-group"><label>Description</label><textarea onchange="updateLesson('+i+','desc',this.value)">'+lesson.desc+'</textarea></div>';
-        c.appendChild(div);
-      });
-    }
-    function updateLesson(i,f,v){ var d=loadData('lessons'); d[i][f]=v; saveData('lessons',d); }
-    function deleteLesson(i){ var d=loadData('lessons'); d.splice(i,1); saveData('lessons',d); renderLessons(); }
-    function addLesson(){ var d=loadData('lessons'); d.push({title:'New Lesson',subject:'',desc:''}); saveData('lessons',d); renderLessons(); }
-
-    function renderDates() {
-      var data = loadData('dates');
-      var tb = document.getElementById('dates-body');
-      tb.innerHTML = '';
-      data.forEach(function(row,i) {
-        var tr = document.createElement('tr');
-        var tdDate=document.createElement('td'), inpDate=document.createElement('input');
-        inpDate.type='date'; inpDate.value=row.date||'';
-        inpDate.onchange=(function(idx){return function(){var d=loadData('dates');d[idx].date=this.value;saveData('dates',d);};})(i);
-        tdDate.appendChild(inpDate); tr.appendChild(tdDate);
-        var tdEvt=document.createElement('td'), inpEvt=document.createElement('input');
-        inpEvt.value=row.event||'';
-        inpEvt.onchange=(function(idx){return function(){var d=loadData('dates');d[idx].event=this.value;saveData('dates',d);};})(i);
-        tdEvt.appendChild(inpEvt); tr.appendChild(tdEvt);
-        var tdType=document.createElement('td'), sel=document.createElement('select');
-        ['exam','holiday','semester','event'].forEach(function(o){ var opt=document.createElement('option'); opt.value=o; opt.text=o.charAt(0).toUpperCase()+o.slice(1); if(row.type===o)opt.selected=true; sel.appendChild(opt); });
-        sel.onchange=(function(idx){return function(){var d=loadData('dates');d[idx].type=this.value;saveData('dates',d);};})(i);
-        tdType.appendChild(sel); tr.appendChild(tdType);
-        var tdDel=document.createElement('td'), btnDel=document.createElement('button');
-        btnDel.className='del-btn'; btnDel.textContent='x';
-        btnDel.onclick=(function(idx){return function(){var d=loadData('dates');d.splice(idx,1);saveData('dates',d);renderDates();};})(i);
-        tdDel.appendChild(btnDel); tr.appendChild(tdDel);
-        tb.appendChild(tr);
-      });
-    }
-    function addDateRow(){ var d=loadData('dates'); d.push({date:'',event:'',type:'event'}); saveData('dates',d); renderDates(); }
-
-    function renderContacts() {
-      var data = loadData('contacts');
-      var c = document.getElementById('contacts-list');
-      c.innerHTML = '';
-      data.forEach(function(ct,i) {
-        var div=document.createElement('div'); div.className='contact-card';
-        div.innerHTML='<div class="card-header"><strong style="color:#c9d1d9">Contact '+(i+1)+'</strong><button class="del-btn" onclick="deleteContact('+i+')">Remove</button></div>' +
-          '<div class="grid-2">' +
-          '<div class="field-group"><label>Name</label><input value="'+ct.name+'" onchange="updateContact('+i+','name',this.value)"></div>' +
-          '<div class="field-group"><label>Role</label><input value="'+ct.role+'" onchange="updateContact('+i+','role',this.value)"></div>' +
-          '<div class="field-group"><label>Email</label><input value="'+ct.email+'" onchange="updateContact('+i+','email',this.value)"></div>' +
-          '<div class="field-group"><label>Phone</label><input value="'+ct.phone+'" onchange="updateContact('+i+','phone',this.value)"></div>' +
-          '</div>';
-        c.appendChild(div);
-      });
-    }
-    function updateContact(i,f,v){ var d=loadData('contacts'); d[i][f]=v; saveData('contacts',d); }
-    function deleteContact(i){ var d=loadData('contacts'); d.splice(i,1); saveData('contacts',d); renderContacts(); }
-    function addContact(){ var d=loadData('contacts'); d.push({name:'',role:'',email:'',phone:''}); saveData('contacts',d); renderContacts(); }
-
-    function saveSection(name) {
-      var el=document.getElementById('status-'+name);
-      el.style.display='block'; el.textContent='Saved locally! Go to Publish to deploy.';
-      setTimeout(function(){ el.style.display='none'; }, 3000);
-    }
-
-    async function publishChanges() {
-      var token = document.getElementById('gh-token').value.trim();
-      var msg = document.getElementById('commit-msg').value.trim() || 'Admin update via dashboard';
-      var statusEl = document.getElementById('status-publish');
-      if(!token){ statusEl.style.display='block'; statusEl.style.color='#f85149'; statusEl.textContent='Please enter your GitHub token.'; return; }
-      statusEl.style.display='block'; statusEl.style.color='#3fb950'; statusEl.textContent='Fetching current index.html...';
-      try {
-        var repo = 'dipccclassroom/info.github.io';
-        var fileResp = await fetch('https://api.github.com/repos/'+repo+'/contents/index.html', {
-          headers: {'Authorization':'Bearer '+token,'Accept':'application/vnd.github.v3+json'}
-        });
-        if(!fileResp.ok) throw new Error('Failed to fetch file: '+fileResp.status);
-        var fileData = await fileResp.json();
-        var sha = fileData.sha;
-        var currentContent = atob(fileData.content.replace(/
-/g,''));
-        var schedule=loadData('schedule'), lessons=loadData('lessons'), dates=loadData('dates'), contacts=loadData('contacts');
-        var dataJSON = JSON.stringify({schedule:schedule,lessons:lessons,dates:dates,contacts:contacts});
-        var scriptOpen = '<scr'+'ipt id="admin-data">window.DIPCC_DATA=';
-        var scriptClose = ';<'+'/scr'+'ipt>';
-        var dataScript = scriptOpen + dataJSON + scriptClose;
-        var updatedContent = currentContent;
-        if(updatedContent.includes('<scr'+'ipt id="admin-data">')) {
-          updatedContent = updatedContent.replace(/<scr[sS]*?admin-data[sS]*?</scr[sS]*?ipt>/, dataScript);
-        } else {
-          updatedContent = updatedContent.replace('</head>', dataScript + '</head>');
-        }
-        var encoded = btoa(unescape(encodeURIComponent(updatedContent)));
-        statusEl.textContent = 'Pushing update to GitHub...';
-        var updateResp = await fetch('https://api.github.com/repos/'+repo+'/contents/index.html', {
-          method:'PUT',
-          headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-          body:JSON.stringify({message:msg,content:encoded,sha:sha,branch:'main'})
-        });
-        if(!updateResp.ok){ var err=await updateResp.json(); throw new Error(err.message||'Failed'); }
-        statusEl.textContent = 'Published! GitHub Actions deploying (30-60 sec). Refresh site to see changes.';
-      } catch(e) {
-        statusEl.style.color='#f85149'; statusEl.textContent='Error: '+e.message;
-      }
-    }
-
-    function logout() { sessionStorage.clear(); window.location.href='login.html'; }
-
-    renderSchedule(); renderLessons(); renderDates(); renderContacts();
-  </script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>

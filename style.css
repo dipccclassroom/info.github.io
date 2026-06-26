@@ -13,6 +13,7 @@ a:hover { text-decoration: underline; }
 .nav { display: flex; gap: 8px; }
 .nav__link { padding: 8px 14px; border-radius: 8px; font-weight: 500; color: var(--text-muted); transition: background var(--transition), color var(--transition); }
 .nav__link:hover { background: var(--bg); color: var(--primary); text-decoration: none; }
+.nav__link--active { color: var(--primary); background: #f0f7ff; }
 .burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; }
 .burger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
 .hero { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #7c3aed 100%); color: #fff; padding: 80px 0 60px; text-align: center; }
@@ -38,7 +39,7 @@ a:hover { text-decoration: underline; }
 .schedule-table tbody tr:hover { background: #f0f7ff; }
 .lessons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
 .lesson-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fff; box-shadow: var(--shadow); }
-.lesson-card__header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; user-select: none; transition: background var(--transition); }
+.lesson-card__header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; user-select: none; transition: background var(--transition); width: 100%; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
 .lesson-card__header:hover { background: #f0f7ff; }
 .lesson-card__icon { font-size: 1.1rem; }
 .lesson-card__header h3 { font-size: 1rem; font-weight: 600; color: var(--text); }

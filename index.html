@@ -31,7 +31,7 @@
       <p class="hero__subtitle">Your one-stop resource for schedules, lessons, important dates, and contacts.</p>
       <div class="hero__search">
         <input type="text" id="searchInput" class="search__input" placeholder="Search subjects, teachers, topics..." />
-        <button class="search__btn" onclick="doSearch()">Search</button>
+        <button class="search__btn" type="button">Search</button>
       </div>
     </div>
   </section>
@@ -113,11 +113,12 @@
   </footer>
   <div class="modal" id="searchModal">
     <div class="modal__box">
-      <button class="modal__close" onclick="closeSearch()">X</button>
+      <button class="modal__close" type="button">X</button>
       <h3>Search Results</h3>
       <div id="searchResults"></div>
     </div>
   </div>
+  <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
