@@ -2,6 +2,7 @@
   'use strict';
 
   var STORAGE_KEY = 'dipcc_admin_draft';
+  var TOKEN_KEY = 'dipcc_github_token';
   var REPO = 'dipccclassroom/info.github.io';
   var DATA_FILE = 'data.js';
   var SECTION_NAMES = ['schedule', 'lessons', 'dates', 'contacts', 'publish'];
@@ -64,6 +65,26 @@
     }
   }
 
+  function getSessionItem(key) {
+    try {
+      return sessionStorage.getItem(key) || '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function setSessionItem(key, value) {
+    try {
+      if (value) {
+        sessionStorage.setItem(key, value);
+      } else {
+        sessionStorage.removeItem(key);
+      }
+    } catch (error) {
+      // Session persistence is a convenience only; publishing can still proceed.
+    }
+  }
+
   function createCell(child) {
     var cell = document.createElement('td');
     cell.appendChild(child);
@@ -123,6 +144,154 @@
       var url = (parts.join('|') || '#').trim();
       return { label: label || url, url: url || '#' };
     });
+  }
+
+  function parseCsv(text) {
+    var rows = [];
+    var row = [];
+    var cell = '';
+    var inQuotes = false;
+
+    for (var i = 0; i < text.length; i += 1) {
+      var char = text[i];
+      var next = text[i + 1];
+
+      if (char === '"' && inQuotes && next === '"') {
+        cell += '"';
+        i += 1;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        row.push(cell.trim());
+        cell = '';
+      } else if ((char === '\n' || char === '\r') && !inQuotes) {
+        if (char === '\r' && next === '\n') i += 1;
+        row.push(cell.trim());
+        if (row.some(Boolean)) rows.push(row);
+        row = [];
+        cell = '';
+      } else {
+        cell += char;
+      }
+    }
+
+    row.push(cell.trim());
+    if (row.some(Boolean)) rows.push(row);
+    return rows;
+  }
+
+  function normalizeCsvHeader(value) {
+    return String(value || '').trim().toLowerCase().replace(/[^a-z]/g, '');
+  }
+
+  function rowsToSchedule(rows) {
+    if (!rows.length) return [];
+
+    var fields = ['day', 'time', 'subject', 'teacher', 'room'];
+    var headers = rows[0].map(normalizeCsvHeader);
+    var headerMap = {
+      day: 'day',
+      weekday: 'day',
+      time: 'time',
+      subject: 'subject',
+      class: 'subject',
+      course: 'subject',
+      teacher: 'teacher',
+      instructor: 'teacher',
+      room: 'room',
+      classroom: 'room'
+    };
+    var indexes = {};
+    var hasHeader = false;
+
+    headers.forEach(function (header, index) {
+      if (headerMap[header]) {
+        indexes[headerMap[header]] = index;
+        hasHeader = true;
+      }
+    });
+
+    if (!hasHeader) {
+      fields.forEach(function (field, index) {
+        indexes[field] = index;
+      });
+    }
+
+    var dataRows = hasHeader ? rows.slice(1) : rows;
+    return dataRows.map(function (row) {
+      return {
+        day: row[indexes.day] || '',
+        time: row[indexes.time] || '',
+        subject: row[indexes.subject] || '',
+        teacher: row[indexes.teacher] || '',
+        room: row[indexes.room] || ''
+      };
+    }).filter(function (entry) {
+      return entry.day || entry.time || entry.subject || entry.teacher || entry.room;
+    });
+  }
+
+  function importScheduleCsv() {
+    var fileInput = document.getElementById('schedule-csv');
+    var modeInput = document.getElementById('schedule-import-mode');
+    var file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+    if (!file) {
+      setStatus('schedule-import', 'Choose a CSV file first.', 'error');
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var importedRows = rowsToSchedule(parseCsv(String(reader.result || '')));
+        if (!importedRows.length) {
+          setStatus('schedule-import', 'No schedule rows found in that CSV.', 'error');
+          return;
+        }
+
+        if (modeInput && modeInput.value === 'append') {
+          content.schedule = content.schedule.concat(importedRows);
+        } else {
+          content.schedule = importedRows;
+        }
+
+        saveDraft();
+        renderSchedule();
+        setStatus('schedule-import', 'Imported ' + importedRows.length + ' schedule rows. Preview or publish when ready.', 'success');
+      } catch (error) {
+        setStatus('schedule-import', 'Could not import CSV: ' + error.message, 'error');
+      }
+    };
+    reader.onerror = function () {
+      setStatus('schedule-import', 'Could not read that CSV file.', 'error');
+    };
+    reader.readAsText(file);
+  }
+
+  function csvEscape(value) {
+    value = String(value || '');
+    return /[",\n\r]/.test(value) ? '"' + value.replace(/"/g, '""') + '"' : value;
+  }
+
+  function downloadScheduleTemplate() {
+    var rows = [['day', 'time', 'subject', 'teacher', 'room']]
+      .concat((content.schedule.length ? content.schedule : [
+        { day: 'Monday', time: '09:00-10:30', subject: 'Mathematics', teacher: 'Prof. Smith', room: '101' }
+      ]).map(function (row) {
+        return [row.day, row.time, row.subject, row.teacher, row.room];
+      }));
+    var csv = rows.map(function (row) {
+      return row.map(csvEscape).join(',');
+    }).join('\n');
+    var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = 'schedule-template.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   }
 
   function renderSchedule() {
@@ -342,7 +511,9 @@
   }
 
   async function publishChanges() {
-    var token = document.getElementById('gh-token').value.trim();
+    var tokenInput = document.getElementById('gh-token');
+    var rememberInput = document.getElementById('remember-gh-token');
+    var token = (tokenInput ? tokenInput.value.trim() : '') || getSessionItem(TOKEN_KEY);
     var message = document.getElementById('commit-msg').value.trim() || 'Admin: Update content via dashboard';
 
     if (!token) {
@@ -350,6 +521,7 @@
       return;
     }
 
+    setSessionItem(TOKEN_KEY, rememberInput && rememberInput.checked ? token : '');
     setStatus('publish', 'Fetching current data.js...', 'success');
 
     try {
@@ -407,8 +579,19 @@
     renderContacts();
   }
 
+  function hydratePublishForm() {
+    var tokenInput = document.getElementById('gh-token');
+    var rememberInput = document.getElementById('remember-gh-token');
+    var savedToken = getSessionItem(TOKEN_KEY);
+
+    if (tokenInput && savedToken) tokenInput.value = savedToken;
+    if (rememberInput) rememberInput.checked = Boolean(savedToken) || rememberInput.checked;
+  }
+
   window.showSection = showSection;
   window.addScheduleRow = addScheduleRow;
+  window.importScheduleCsv = importScheduleCsv;
+  window.downloadScheduleTemplate = downloadScheduleTemplate;
   window.addLesson = addLesson;
   window.addDateRow = addDateRow;
   window.addContact = addContact;
@@ -417,4 +600,5 @@
   window.logout = logout;
 
   renderAll();
+  hydratePublishForm();
 })();
