@@ -25,6 +25,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Inject auth hashes from secrets
+        env:
+          ADMIN_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          VIEWER_HASH: ${{ secrets.VIEWER_PASSWORD_HASH }}
+        run: |
+          sed -i "s/__ADMIN_HASH__/${ADMIN_HASH}/g" auth-config.js
+          sed -i "s/__VIEWER_HASH__/${VIEWER_HASH}/g" auth-config.js
+          echo "Auth hashes injected into auth-config.js"
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
