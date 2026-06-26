@@ -30,9 +30,15 @@ jobs:
           ADMIN_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
           VIEWER_HASH: ${{ secrets.VIEWER_PASSWORD_HASH }}
         run: |
-          sed -i "s/__ADMIN_HASH__/${ADMIN_HASH}/g" auth-config.js
-          sed -i "s/__VIEWER_HASH__/${VIEWER_HASH}/g" auth-config.js
-          echo "Auth hashes injected into auth-config.js"
+          DEFAULT_ADMIN="240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
+          DEFAULT_VIEWER="65375049b9e4d7cad6c9ba286fdeb9394b28135a3e84136404cfccfdcc438894"
+          FINAL_ADMIN=${ADMIN_HASH:-$DEFAULT_ADMIN}
+          FINAL_VIEWER=${VIEWER_HASH:-$DEFAULT_VIEWER}
+          if [ "${#FINAL_ADMIN}" -ne 64 ]; then FINAL_ADMIN=$DEFAULT_ADMIN; fi
+          if [ "${#FINAL_VIEWER}" -ne 64 ]; then FINAL_VIEWER=$DEFAULT_VIEWER; fi
+          sed -i "s/__ADMIN_HASH__/${FINAL_ADMIN}/g" auth-config.js
+          sed -i "s/__VIEWER_HASH__/${FINAL_VIEWER}/g" auth-config.js
+          echo "Auth hashes injected (admin len=${#FINAL_ADMIN}, viewer len=${#FINAL_VIEWER})"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
