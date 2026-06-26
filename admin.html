@@ -48,6 +48,11 @@
     .actions-row { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }
     .check-row { display:flex; gap:.5rem; align-items:center; color:#8b949e; font-size:.85rem; margin-top:.6rem; }
     .check-row input { width:auto; }
+    .preview-wrap { overflow-x:auto; border:1px solid #30363d; border-radius:8px; margin-top:1rem; }
+    .preview-table { width:100%; min-width:760px; border-collapse:collapse; }
+    .preview-table th { background:#21262d; color:#8b949e; padding:.5rem .65rem; text-align:left; font-size:.75rem; text-transform:uppercase; }
+    .preview-table td { border-top:1px solid #21262d; padding:.5rem .65rem; color:#c9d1d9; font-size:.82rem; vertical-align:top; }
+    .help-text { color:#8b949e; font-size:.82rem; margin:.4rem 0 1rem; }
   </style>
 </head>
 <body>
@@ -69,6 +74,7 @@
         <button class="sidebar-btn" onclick="showSection('lessons')">&#128218; Lessons</button>
         <button class="sidebar-btn" onclick="showSection('dates')">&#9200; Important Dates</button>
         <button class="sidebar-btn" onclick="showSection('contacts')">&#128222; Contacts</button>
+        <button class="sidebar-btn" onclick="showSection('classroom')">&#127891; Classroom</button>
         <button class="sidebar-btn" onclick="showSection('publish')">&#128640; Publish Changes</button>
       </div>
 
@@ -132,6 +138,52 @@
           <button class="btn-add-row" onclick="addContact()">+ Add Contact</button>
           <button class="btn-save" onclick="saveSection('contacts')">Save &amp; Preview</button>
           <div class="status-bar" id="status-contacts">Saved.</div>
+        </div>
+
+        <div id="section-classroom" style="display:none">
+          <h2>&#127891; Google Classroom Tasks</h2>
+          <div class="token-note">
+            <strong>Bridge required:</strong> deploy the Apps Script project in <code>apps-script/classroom-bridge</code>, paste its Web App URL below, then upload a task CSV for a selected course ID.
+          </div>
+          <div class="grid-2">
+            <div class="field-group">
+              <label for="classroom-bridge-url">Apps Script Web App URL</label>
+              <input type="url" id="classroom-bridge-url" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <div class="field-group">
+              <label for="classroom-bridge-secret">Bridge Secret</label>
+              <input type="password" id="classroom-bridge-secret" placeholder="Session only">
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="classroom-course-list">Classroom IDs</label>
+            <textarea id="classroom-course-list" placeholder="Algebra 101 | 1234567890&#10;Physics | 2345678901"></textarea>
+            <p class="help-text">One classroom per line. Use <strong>Name | courseId</strong> or just the course ID.</p>
+            <button class="btn-secondary" type="button" onclick="saveClassroomSettings()">Save Classroom Settings</button>
+          </div>
+          <div class="grid-2">
+            <div class="field-group">
+              <label for="classroom-course-select">Selected Classroom</label>
+              <select id="classroom-course-select"></select>
+            </div>
+            <div class="field-group">
+              <label for="classroom-csv">Task CSV</label>
+              <input type="file" id="classroom-csv" accept=".csv,text/csv">
+            </div>
+          </div>
+          <p class="help-text">CSV headers: <strong>title,description,topic,topicId,scheduledAt,dueAt,maxPoints,materialUrl,workType,state,choices</strong>. Use ISO date/time values for scheduledAt and dueAt.</p>
+          <div class="actions-row">
+            <button class="btn-save" type="button" onclick="previewClassroomCsv()">Preview CSV</button>
+            <button class="btn-secondary" type="button" onclick="downloadClassroomTemplate()">Download Task CSV Template</button>
+            <button class="btn-save" type="button" onclick="sendClassroomTasks()">Send to Classroom</button>
+          </div>
+          <div class="status-bar" id="status-classroom"></div>
+          <div class="preview-wrap">
+            <table class="preview-table">
+              <thead><tr><th>Title</th><th>Topic</th><th>Scheduled</th><th>Due</th><th>Points</th><th>State</th></tr></thead>
+              <tbody id="classroom-preview-body"></tbody>
+            </table>
+          </div>
         </div>
 
         <div id="section-publish" style="display:none">
