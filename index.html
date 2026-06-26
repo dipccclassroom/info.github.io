@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>DIPCC Classroom — College Info</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+          <div class="container header__inner">
+                  <div class="logo">
+                            <span class="logo__icon">🎓</span>span>
+                            <span class="logo__text">DIPCC Classroom</span>span>
+                  </div>div>
+                  <nav class="nav" id="nav">
+                            <a href="#schedule" class="nav__link">Schedule</a>a>
+                            <a href="#lessons" class="nav__link">Lessons</a>a>
+                            <a href="#dates" class="nav__link">Important Dates</a>a>
+                            <a href="#contacts" class="nav__link">Contacts</a>a>
+                  </nav>nav>
+                  <button class="burger" id="burger" aria-label="Toggle menu">
+                            <span></span><span></span><span></span>
+                  </button>button>
+          </div>div>
+    </header>header>
+
+  <!-- HERO -->
+  <section class="hero">
+      <div class="container hero__inner">
+            <h1 class="hero__title">College Information Hub</h1>h1>
+            <p class="hero__subtitle">Your one-stop resource for schedules, lessons, important dates, and contacts.</p>p>
+            <div class="hero__search">
+                    <input type="text" id="searchInput" class="search__input" placeholder="Search subjects, teachers, topics…" />
+                    <button class="search__btn" onclick="doSearch()">Search</button>button>
+            </div>div>
+      </div>div>
+  </section>section>
+
+  <!-- SCHEDULE SECTION -->
+  <section class="section" id="schedule">
+      <div class="container">
+            <h2 class="section__title">📅 Weekly Schedule</h2>h2>
+            <div class="tabs">
+                    <button class="tab active" data-day="all">All Days</button>button>
+                    <button class="tab" data-day="Monday">Monday</button>button>
+                    <button class="tab" data-day="Tuesday">Tuesday</button>button>
+                    <button class="tab" data-day="Wednesday">Wednesday</button>button>
+                    <button class="tab" data-day="Thursday">Thursday</button>button>
+                    <button class="tab" data-day="Friday">Friday</button>button>
+            </div>div>
+            <div class="table-wrap">
+                    <table class="schedule-table" id="scheduleTable">
+                              <thead>
+                                            <tr>
+                                                            <th>Day</th>
+                                            <th>Time</th>
+                                            <th>Subject</th>
+                                            <th>Teacher</th>
+                                            <th>Room</th>
+                                            </tr>
+                              </thead>
+                              <tbody>
+                                            <tr data-day="Monday"><td>Monday</td><td>09:00 – 10:30</td><td>Mathematics</td><td>Prof. Smith</td><td>101</td></tr>tr>
+                                <tr data-day="Monday"><td>Monday</td><td>11:00 – 12:30</td><td>English Literature</td><td>Prof. Johnson</td><td>204</td></tr>tr>
+                                <tr data-day="Tuesday"><td>Tuesday</td><td>09:00 – 10:30</td><td>Physics</td><td>Prof. Lee</td><td>Lab 1</td></tr>tr>
+                                <tr data-day="Tuesday"><td>Tuesday</td><td>11:00 – 12:30</td><td>History</td><td>Prof. Garcia</td><td>305</td></tr>tr>
+                                <tr data-day="Wednesday"><td>Wednesday</td><td>09:00 – 10:30</td><td>Computer Science</td><td>Prof. Patel</td><td>Lab 2</td></tr>tr>
+                                <tr data-day="Wednesday"><td>Wednesday</td><td>11:00 – 12:30</td><td>Chemistry</td><td>Prof. Brown</td><td>Lab 3</td></tr>tr>
+                                <tr data-day="Thursday"><td>Thursday</td><td>09:00 – 10:30</td><td>Mathematics</td><td>Prof. Smith</td><td>101</td></tr>tr>
+                                <tr data-day="Thursday"><td>Thursday</td><td>11:00 – 12:30</td><td>Physical Education</td><td>Coach Miller</td><td>Gym</td></tr>tr>
+                                <tr data-day="Friday"><td>Friday</td><td>09:00 – 10:30</td><td>English Literature</td><td>Prof. Johnson</td><td>204</td></tr>tr>
+                                <tr data-day="Friday"><td>Friday</td><td>11:00 – 12:30</td><td>Free Study / Elective</td><td>—</td><td>Library</td></tr>tr>
+                              </tbody>
+                    </table>table>
+            </div>div>
+      </div>div>
+  </section>section>
+
+  <!-- LESSONS SECTION -->
+  <section class="section section--alt" id="lessons">
+      <div class="container">
+            <h2 class="section__title">📚 Lessons &amp; Topics</h2>h2>
+            <div class="lessons-grid">
+                    <div class="lesson-card">
+                              <div class="lesson-card__header" onclick="toggleLesson(this)">
+                                          <span class="lesson-card__icon">➕</span>
+                                          <h3>Mathematics</h3>
+                              </div>div>
+                              <ul class="lesson-card__body">
+                                          <li>Week 1: Algebra — Linear Equations</li>
+                                          <li>Week 2: Algebra — Quadratic Equations</li>
+                                          <li>Week 3: Trigonometry — Sine, Cosine, Tangent</li>
+                                          <li>Week 4: Calculus — Introduction to Derivatives</li>
+                              </ul>ul>
+                    </div>div>
+                    <div class="lesson-card">
+                              <div class="lesson-card__header" onclick="toggleLesson(this)">
+                                          <span class="lesson-card__icon">➕</span>
+                                          <h3>English Literature</h3>
+                              </div>div>
+                              <ul class="lesson-card__body">
+                                          <li>Week 1: Short Story Analysis</li>
+                                          <li>Week 2: Poetry — Romantics</li>
+                                          <li>Week 3: Essay Writing Techniques</li>
+                                          <li>Week 4: Novel Study — Selected Reading</li>
+                              </ul>ul>
+                    </div>div>
+                    <div class="lesson-card">
+                              <div class="lesson-card__header" onclick="toggleLesson(this)">
+                                          <span class="lesson-card__icon">➕</span>
+                                          <h3>Physics</h3>
+                              </div>div>
+                              <ul class="lesson-card__body">
+                                          <li>Week 1: Mechanics — Newton's Laws</li>
+                                          <li>Week 2: Kinematics</li>
+                                          <li>Week 3: Energy &amp; Work</li>
+                                          <li>Week 4: Electricity &amp; Circuits</li>
+                              </ul>ul>
+                    </div>div>
+                    <div class="lesson-card">
+                              <div class="lesson-card__header" onclick="toggleLesson(this)">
+                                          <span class="lesson-card__icon">➕</span>
+                                          <h3>Computer Science</h3>
+                              </div>div>
+                              <ul class="lesson-card__body">
+                                          <li>Week 1: Introduction to Programming</li>
+                                          <li>Week 2: Variables, Loops, and Functions</li>
+                                          <li>Week 3: Data Structures</li>
+                                          <li>Week 4: Algorithms &amp; Problem Solving</li>
+                              </ul>ul>
+                    </div>div>
+                    <div class="lesson-card">
+                              <div class="lesson-card__header" onclick="toggleLesson(this)">
+                                          <span class="lesson-card__icon">➕</span>
+                                          <h3>History</h3>
+                              </div>div>
+                              <ul class="lesson-card__body">
+                                          <li>Week 1: Ancient Civilizations</li>
+                                          <li>Week 2: The Middle Ages</li>
+                                          <li>Week 3: Renaissance &amp; Reformation</li>
+                                          <li>Week 4: Modern History</li>
+                              </ul>ul>
+                    </div>div>
+                    <div class="lesson-card">
+                              <div class="lesson-card__header" onclick="toggleLesson(this)">
+                                          <span class="lesson-card__icon">➕</span>
+                                          <h3>Chemistry</h3>
+                              </div>div>
+                              <ul class="lesson-card__body">
+                                          <li>Week 1: Atoms &amp; Periodic Table</li>
+                                          <li>Week 2: Chemical Bonds</li>
+                                          <li>Week 3: Reactions &amp; Equations</li>
+                                          <li>Week 4: Acids, Bases &amp; pH</li>
+                              </ul>ul>
+                    </div>div>
+            </div>div>
+      </div>div>
+  </section>section>
+
+  <!-- IMPORTANT DATES -->
+  <section class="section" id="dates">
+      <div class="container">
+            <h2 class="section__title">📌 Important Dates</h2>
+            <div class="dates-grid">
+                    <div class="date-card"><div class="date-card__date">Sep 1</div>div><div class="date-card__event">First Day of Classes</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Oct 15</div>div><div class="date-card__event">Midterm Exams Begin</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Oct 20</div>div><div class="date-card__event">Midterm Exams End</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Nov 1</div>div><div class="date-card__event">Project Submission Deadline</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Dec 20</div>div><div class="date-card__event">Last Day of Classes (Sem 1)</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Jan 15</div>div><div class="date-card__event">Start of Semester 2</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Mar 10</div>div><div class="date-card__event">Final Exams Begin</div>div></div>div>
+                    <div class="date-card"><div class="date-card__date">Mar 20</div>div><div class="date-card__event">Final Exams End</div>div></div>div>
+                    <div class="date-card highlight"><div class="date-card__date">Jun 15</div>div><div class="date-card__event">🎓 Graduation Ceremony</div>div></div>div>
+            </div>div>
+      </div>div>
+  </section>section>
+
+  <!-- CONTACTS -->
+  <section class="section section--alt" id="contacts">
+      <div class="container">
+            <h2 class="section__title">📞 Contacts &amp; Resources</h2>
+            <div class="contacts-grid">
+                    <div class="contact-card">
+                              <div class="contact-card__icon">✉️</div>div>
+                              <h3>Email</h3>
+                              <p>dipccclassroom@example.com</p>
+                    </div>div>
+                    <div class="contact-card">
+                              <div class="contact-card__icon">🕐</div>div>
+                              <h3>Office Hours</h3>
+                              <p>Monday–Friday<br/>08:00 – 17:00</p>
+                    </div>div>
+                    <div class="contact-card">
+                              <div class="contact-card__icon">📖</div>div>
+                              <h3>Library</h3>
+                              <p>Mon–Sat<br/>08:00 – 20:00</p>
+                    </div>div>
+                    <div class="contact-card">
+                              <div class="contact-card__icon">🌐</div>div>
+                              <h3>Useful Links</h3>
+                              <p>
+                                            <a href="#">College Website</a>a><br/>
+                                            <a href="#">Student Portal</a>a><br/>
+                                            <a href="#">Course Catalog</a>a>
+                              </p>
+                    </div>div>
+            </div>div>
+      </div>div>
+  </section>section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+          <div class="container footer__inner">
+                  <p>© 2026 DIPCC Classroom. All rights reserved.</p>
+                  <p class="footer__update">Last updated: June 2026</p>
+          </div>div>
+    </footer>footer>
+
+    <!-- Search Results Modal -->
+    <div class="modal" id="searchModal">
+          <div class="modal__box">
+                  <button class="modal__close" onclick="closeSearch()">✕</button>button>
+                  <h3>Search Results</h3>
+                  <div id="searchResults"></div>div>
+          </div>div>
+    </div>div>
+
+    <script src="script.js"></script>
+</body>
+</html>html>
+                              </p></p></li></li></h3></td></td>
+                              </tbody></th></th>
+                                            </tr>
+                              </thead></span></span>
+</body></title>
+  </head>
