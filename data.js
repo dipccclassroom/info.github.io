@@ -8,7 +8,7 @@
         "time": "09:00-10:30",
         "subject": "Mathematics",
         "teacher": "Prof. Smith",
-        "room": "101"
+        "room": "Google Meet Link"
       },
       {
         "day": "Monday",
