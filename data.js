@@ -174,9 +174,14 @@
         "title": "Email",
         "icon": "✉",
         "details": [
-          "dipccclassroom@example.com"
+          "dipt.dp.ua@ukr.net"
         ],
-        "links": []
+        "links": [
+          {
+            "label": "mailto:dipt.dp.ua@ukr.net",
+            "url": "#"
+          }
+        ]
       },
       {
         "title": "Office Hours",
