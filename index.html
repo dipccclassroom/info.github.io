@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DIPCC Classroom - College Info</title>
+  <title>DIPCC Classroom — Інформація для студентів</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
@@ -14,110 +14,93 @@
         <span class="logo__icon">&#127891;</span>
         <span class="logo__text">DIPCC Classroom</span>
       </div>
-      <nav class="nav" id="nav">
-        <a href="#schedule" class="nav__link">Schedule</a>
-        <a href="#lessons" class="nav__link">Lessons</a>
-        <a href="#dates" class="nav__link">Important Dates</a>
-        <a href="#contacts" class="nav__link">Contacts</a>
+      <nav class="nav" id="nav" aria-label="Student navigation">
+        <a href="#schedule" class="nav__link" data-i18n="nav.schedule">Розклад</a>
+        <a href="#lessons" class="nav__link" data-i18n="nav.lessons">Заняття</a>
+        <a href="#dates" class="nav__link" data-i18n="nav.dates">Важливі дати</a>
+        <a href="#contacts" class="nav__link" data-i18n="nav.contacts">Контакти</a>
       </nav>
-      <button class="burger" id="burger" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
+      <div class="header__actions">
+        <div class="language-switcher" role="group" aria-label="Language selector" data-i18n-aria-label="language.label">
+          <button class="language-switcher__button" type="button" data-language="uk" aria-pressed="true">UA</button>
+          <button class="language-switcher__button" type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="burger" id="burger" aria-label="Відкрити меню" data-i18n-aria-label="menu.toggle" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   </header>
-  <section class="hero">
-    <div class="hero__inner">
-      <h1 class="hero__title">College Information Hub</h1>
-      <p class="hero__subtitle">Your one-stop resource for schedules, lessons, important dates, and contacts.</p>
-      <div class="hero__search">
-        <input type="text" id="searchInput" class="search__input" placeholder="Search subjects, teachers, topics..." />
-        <button class="search__btn" type="button">Search</button>
+
+  <main>
+    <section class="hero">
+      <div class="hero__inner">
+        <h1 class="hero__title" data-i18n="hero.title">Інформаційний хаб коледжу</h1>
+        <p class="hero__subtitle" data-i18n="hero.subtitle">Усе необхідне: розклад, заняття, важливі дати та контакти.</p>
+        <div class="hero__search">
+          <input type="text" id="searchInput" class="search__input" placeholder="Пошук предметів, викладачів, тем..." data-i18n-placeholder="search.placeholder" />
+          <button class="search__btn" type="button" data-i18n="search.button">Пошук</button>
+        </div>
       </div>
-    </div>
-  </section>
-  <section class="section" id="schedule">
-    <div class="container">
-      <h2 class="section__title">Weekly Schedule</h2>
-      <div class="tabs">
-        <button class="tab active" data-day="all">All Days</button>
-        <button class="tab" data-day="Monday">Monday</button>
-        <button class="tab" data-day="Tuesday">Tuesday</button>
-        <button class="tab" data-day="Wednesday">Wednesday</button>
-        <button class="tab" data-day="Thursday">Thursday</button>
-        <button class="tab" data-day="Friday">Friday</button>
+    </section>
+
+    <section class="section" id="schedule">
+      <div class="container">
+        <h2 class="section__title" data-i18n="schedule.title">Щотижневий розклад</h2>
+        <div class="tabs">
+          <button class="tab active" data-day="all" data-i18n="schedule.allDays">Усі дні</button>
+          <button class="tab" data-day="monday" data-i18n="days.monday">Понеділок</button>
+          <button class="tab" data-day="tuesday" data-i18n="days.tuesday">Вівторок</button>
+          <button class="tab" data-day="wednesday" data-i18n="days.wednesday">Середа</button>
+          <button class="tab" data-day="thursday" data-i18n="days.thursday">Четвер</button>
+          <button class="tab" data-day="friday" data-i18n="days.friday">П’ятниця</button>
+        </div>
+        <div class="table-wrap">
+          <table class="schedule-table" id="scheduleTable">
+            <thead><tr><th data-i18n="schedule.day">День</th><th data-i18n="schedule.time">Час</th><th data-i18n="schedule.subject">Предмет</th><th data-i18n="schedule.teacher">Викладач</th><th data-i18n="schedule.room">Аудиторія</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table class="schedule-table" id="scheduleTable">
-          <thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Teacher</th><th>Room</th></tr></thead>
-          <tbody>
-            <tr data-day="Monday"><td>Monday</td><td>09:00-10:30</td><td>Mathematics</td><td>Prof. Smith</td><td>101</td></tr>
-            <tr data-day="Monday"><td>Monday</td><td>11:00-12:30</td><td>English Literature</td><td>Prof. Johnson</td><td>204</td></tr>
-            <tr data-day="Tuesday"><td>Tuesday</td><td>09:00-10:30</td><td>Physics</td><td>Prof. Lee</td><td>Lab 1</td></tr>
-            <tr data-day="Tuesday"><td>Tuesday</td><td>11:00-12:30</td><td>History</td><td>Prof. Garcia</td><td>305</td></tr>
-            <tr data-day="Wednesday"><td>Wednesday</td><td>09:00-10:30</td><td>Computer Science</td><td>Prof. Patel</td><td>Lab 2</td></tr>
-            <tr data-day="Wednesday"><td>Wednesday</td><td>11:00-12:30</td><td>Chemistry</td><td>Prof. Brown</td><td>Lab 3</td></tr>
-            <tr data-day="Thursday"><td>Thursday</td><td>09:00-10:30</td><td>Mathematics</td><td>Prof. Smith</td><td>101</td></tr>
-            <tr data-day="Thursday"><td>Thursday</td><td>11:00-12:30</td><td>Physical Education</td><td>Coach Miller</td><td>Gym</td></tr>
-            <tr data-day="Friday"><td>Friday</td><td>09:00-10:30</td><td>English Literature</td><td>Prof. Johnson</td><td>204</td></tr>
-            <tr data-day="Friday"><td>Friday</td><td>11:00-12:30</td><td>Free Study</td><td>-</td><td>Library</td></tr>
-          </tbody>
-        </table>
+    </section>
+
+    <section class="section section--alt" id="lessons">
+      <div class="container">
+        <h2 class="section__title" data-i18n="lessons.title">Заняття та теми</h2>
+        <div class="lessons-grid"></div>
       </div>
-    </div>
-  </section>
-  <section class="section section--alt" id="lessons">
-    <div class="container">
-      <h2 class="section__title">Lessons and Topics</h2>
-      <div class="lessons-grid">
-        <div class="lesson-card"><div class="lesson-card__header" onclick="toggleLesson(this)"><span class="lesson-card__icon">+</span><h3>Mathematics</h3></div><ul class="lesson-card__body"><li>Week 1: Algebra - Linear Equations</li><li>Week 2: Quadratic Equations</li><li>Week 3: Trigonometry</li><li>Week 4: Calculus</li></ul></div>
-        <div class="lesson-card"><div class="lesson-card__header" onclick="toggleLesson(this)"><span class="lesson-card__icon">+</span><h3>English Literature</h3></div><ul class="lesson-card__body"><li>Week 1: Short Story Analysis</li><li>Week 2: Poetry</li><li>Week 3: Essay Writing</li><li>Week 4: Novel Study</li></ul></div>
-        <div class="lesson-card"><div class="lesson-card__header" onclick="toggleLesson(this)"><span class="lesson-card__icon">+</span><h3>Physics</h3></div><ul class="lesson-card__body"><li>Week 1: Newton Laws</li><li>Week 2: Kinematics</li><li>Week 3: Energy and Work</li><li>Week 4: Electricity</li></ul></div>
-        <div class="lesson-card"><div class="lesson-card__header" onclick="toggleLesson(this)"><span class="lesson-card__icon">+</span><h3>Computer Science</h3></div><ul class="lesson-card__body"><li>Week 1: Programming Intro</li><li>Week 2: Variables and Functions</li><li>Week 3: Data Structures</li><li>Week 4: Algorithms</li></ul></div>
-        <div class="lesson-card"><div class="lesson-card__header" onclick="toggleLesson(this)"><span class="lesson-card__icon">+</span><h3>History</h3></div><ul class="lesson-card__body"><li>Week 1: Ancient Civilizations</li><li>Week 2: Middle Ages</li><li>Week 3: Renaissance</li><li>Week 4: Modern History</li></ul></div>
-        <div class="lesson-card"><div class="lesson-card__header" onclick="toggleLesson(this)"><span class="lesson-card__icon">+</span><h3>Chemistry</h3></div><ul class="lesson-card__body"><li>Week 1: Periodic Table</li><li>Week 2: Chemical Bonds</li><li>Week 3: Reactions</li><li>Week 4: Acids and Bases</li></ul></div>
+    </section>
+
+    <section class="section" id="dates">
+      <div class="container">
+        <h2 class="section__title" data-i18n="dates.title">Важливі дати</h2>
+        <div class="dates-grid"></div>
       </div>
-    </div>
-  </section>
-  <section class="section" id="dates">
-    <div class="container">
-      <h2 class="section__title">Important Dates</h2>
-      <div class="dates-grid">
-        <div class="date-card"><div class="date-card__date">Sep 1</div><div class="date-card__event">First Day of Classes</div></div>
-        <div class="date-card"><div class="date-card__date">Oct 15</div><div class="date-card__event">Midterm Exams Begin</div></div>
-        <div class="date-card"><div class="date-card__date">Oct 20</div><div class="date-card__event">Midterm Exams End</div></div>
-        <div class="date-card"><div class="date-card__date">Nov 1</div><div class="date-card__event">Project Submission</div></div>
-        <div class="date-card"><div class="date-card__date">Dec 20</div><div class="date-card__event">Last Day Semester 1</div></div>
-        <div class="date-card"><div class="date-card__date">Jan 15</div><div class="date-card__event">Start Semester 2</div></div>
-        <div class="date-card"><div class="date-card__date">Mar 10</div><div class="date-card__event">Final Exams Begin</div></div>
-        <div class="date-card"><div class="date-card__date">Mar 20</div><div class="date-card__event">Final Exams End</div></div>
-        <div class="date-card highlight"><div class="date-card__date">Jun 15</div><div class="date-card__event">Graduation Ceremony</div></div>
+    </section>
+
+    <section class="section section--alt" id="contacts">
+      <div class="container">
+        <h2 class="section__title" data-i18n="contacts.title">Контакти й ресурси</h2>
+        <div class="contacts-grid"></div>
       </div>
-    </div>
-  </section>
-  <section class="section section--alt" id="contacts">
-    <div class="container">
-      <h2 class="section__title">Contacts and Resources</h2>
-      <div class="contacts-grid">
-        <div class="contact-card"><div class="contact-card__icon">&#9993;</div><h3>Email</h3><p>dipccclassroom@example.com</p></div>
-        <div class="contact-card"><div class="contact-card__icon">&#128336;</div><h3>Office Hours</h3><p>Mon-Fri 08:00-17:00</p></div>
-        <div class="contact-card"><div class="contact-card__icon">&#128214;</div><h3>Library</h3><p>Mon-Sat 08:00-20:00</p></div>
-        <div class="contact-card"><div class="contact-card__icon">&#127760;</div><h3>Useful Links</h3><p><a href="#">College Website</a><br><a href="#">Student Portal</a><br><a href="#">Course Catalog</a></p></div>
-      </div>
-    </div>
-  </section>
+    </section>
+  </main>
+
   <footer class="footer">
     <div class="container footer__inner">
-      <p>2026 DIPCC Classroom. All rights reserved.</p>
-      <p class="footer__update">Last updated: June 2026</p>
+      <p data-i18n="footer.copyright">2026 DIPCC Classroom. Усі права захищено.</p>
+      <p class="footer__update" data-i18n="footer.updated">Оновлено: червень 2026</p>
     </div>
   </footer>
-  <div class="modal" id="searchModal">
+
+  <div class="modal" id="searchModal" role="dialog" aria-modal="true" aria-labelledby="searchResultsTitle">
     <div class="modal__box">
-      <button class="modal__close" type="button">X</button>
-      <h3>Search Results</h3>
+      <button class="modal__close" type="button" aria-label="Закрити" data-i18n-aria-label="modal.close">X</button>
+      <h3 id="searchResultsTitle" data-i18n="search.results">Результати пошуку</h3>
       <div id="searchResults"></div>
     </div>
   </div>
+
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>

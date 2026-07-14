@@ -2,6 +2,106 @@
   'use strict';
 
   var DRAFT_KEY = 'dipcc_admin_draft';
+  var LANGUAGE_KEY = 'dipcc_language';
+  var DEFAULT_LANGUAGE = 'uk';
+  var currentLanguage = DEFAULT_LANGUAGE;
+  var currentScheduleDay = 'all';
+  var TEXT = {
+    uk: {
+      'page.title': 'DIPCC Classroom — Інформація для студентів',
+      'language.label': 'Вибір мови',
+      'menu.toggle': 'Відкрити меню',
+      'nav.schedule': 'Розклад',
+      'nav.lessons': 'Заняття',
+      'nav.dates': 'Важливі дати',
+      'nav.contacts': 'Контакти',
+      'hero.title': 'Інформаційний хаб коледжу',
+      'hero.subtitle': 'Усе необхідне: розклад, заняття, важливі дати та контакти.',
+      'search.placeholder': 'Пошук предметів, викладачів, тем...',
+      'search.button': 'Пошук',
+      'search.results': 'Результати пошуку',
+      'search.noResults': 'За запитом «{query}» нічого не знайдено.',
+      'search.sections.schedule': 'Розклад',
+      'search.sections.lessons': 'Заняття',
+      'search.sections.dates': 'Важливі дати',
+      'search.sections.contacts': 'Контакти',
+      'schedule.title': 'Щотижневий розклад',
+      'schedule.allDays': 'Усі дні',
+      'schedule.day': 'День',
+      'schedule.time': 'Час',
+      'schedule.subject': 'Предмет',
+      'schedule.teacher': 'Викладач',
+      'schedule.room': 'Аудиторія',
+      'days.monday': 'Понеділок',
+      'days.tuesday': 'Вівторок',
+      'days.wednesday': 'Середа',
+      'days.thursday': 'Четвер',
+      'days.friday': 'П’ятниця',
+      'lessons.title': 'Заняття та теми',
+      'lessons.untitled': 'Без назви',
+      'dates.title': 'Важливі дати',
+      'contacts.title': 'Контакти й ресурси',
+      'contacts.defaultTitle': 'Контакт',
+      'footer.copyright': '2026 DIPCC Classroom. Усі права захищено.',
+      'footer.updated': 'Оновлено: червень 2026',
+      'modal.close': 'Закрити',
+      'backToTop': 'На початок'
+    },
+    en: {
+      'page.title': 'DIPCC Classroom — Student Information',
+      'language.label': 'Language selector',
+      'menu.toggle': 'Toggle menu',
+      'nav.schedule': 'Schedule',
+      'nav.lessons': 'Lessons',
+      'nav.dates': 'Important Dates',
+      'nav.contacts': 'Contacts',
+      'hero.title': 'College Information Hub',
+      'hero.subtitle': 'Your one-stop resource for schedules, lessons, important dates, and contacts.',
+      'search.placeholder': 'Search subjects, teachers, topics...',
+      'search.button': 'Search',
+      'search.results': 'Search Results',
+      'search.noResults': 'No results found for “{query}”.',
+      'search.sections.schedule': 'Schedule',
+      'search.sections.lessons': 'Lessons',
+      'search.sections.dates': 'Important Dates',
+      'search.sections.contacts': 'Contacts',
+      'schedule.title': 'Weekly Schedule',
+      'schedule.allDays': 'All Days',
+      'schedule.day': 'Day',
+      'schedule.time': 'Time',
+      'schedule.subject': 'Subject',
+      'schedule.teacher': 'Teacher',
+      'schedule.room': 'Room',
+      'days.monday': 'Monday',
+      'days.tuesday': 'Tuesday',
+      'days.wednesday': 'Wednesday',
+      'days.thursday': 'Thursday',
+      'days.friday': 'Friday',
+      'lessons.title': 'Lessons and Topics',
+      'lessons.untitled': 'Untitled lesson',
+      'dates.title': 'Important Dates',
+      'contacts.title': 'Contacts and Resources',
+      'contacts.defaultTitle': 'Contact',
+      'footer.copyright': '2026 DIPCC Classroom. All rights reserved.',
+      'footer.updated': 'Last updated: June 2026',
+      'modal.close': 'Close',
+      'backToTop': 'Back to top'
+    }
+  };
+  currentLanguage = readSavedLanguage();
+
+  function readSavedLanguage() {
+    try {
+      var language = localStorage.getItem(LANGUAGE_KEY);
+      return TEXT && TEXT[language] ? language : DEFAULT_LANGUAGE;
+    } catch (error) {
+      return DEFAULT_LANGUAGE;
+    }
+  }
+
+  function text(key) {
+    return (TEXT[currentLanguage] && TEXT[currentLanguage][key]) || TEXT[DEFAULT_LANGUAGE][key] || key;
+  }
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value || {}));
@@ -18,7 +118,22 @@
   }
 
   function getSiteData() {
-    return readAdminDraft() || clone(window.DIPCC_DATA || window.DIPCC_DEFAULT_DATA);
+    var draft = readAdminDraft();
+    if (draft) return draft;
+
+    var localizedData = window.DIPCC_LOCALIZED_DATA || {};
+    return clone(localizedData[currentLanguage] || window.DIPCC_DATA || window.DIPCC_DEFAULT_DATA);
+  }
+
+  function getDayKey(item) {
+    if (item && item.dayKey) return String(item.dayKey).toLowerCase();
+
+    var days = {
+      monday: 'monday', tuesday: 'tuesday', wednesday: 'wednesday', thursday: 'thursday', friday: 'friday',
+      'понеділок': 'monday', 'вівторок': 'tuesday', 'середа': 'wednesday', 'четвер': 'thursday',
+      'п’ятниця': 'friday', "п'ятниця": 'friday'
+    };
+    return days[String((item && item.day) || '').toLowerCase()] || String((item && item.day) || '').toLowerCase();
   }
 
   function textCell(value) {
@@ -34,7 +149,7 @@
     tbody.replaceChildren();
     (schedule || []).forEach(function (item) {
       var row = document.createElement('tr');
-      row.dataset.day = item.day || '';
+      row.dataset.day = getDayKey(item);
       row.append(
         textCell(item.day),
         textCell(item.time),
@@ -66,7 +181,7 @@
       icon.textContent = '+';
 
       var title = document.createElement('h3');
-      title.textContent = lesson.subject || 'Untitled lesson';
+      title.textContent = lesson.subject || text('lessons.untitled');
 
       var body = document.createElement('ul');
       body.className = 'lesson-card__body';
@@ -124,7 +239,7 @@
       icon.textContent = item.icon || '';
 
       var title = document.createElement('h3');
-      title.textContent = item.title || 'Contact';
+      title.textContent = item.title || text('contacts.defaultTitle');
 
       var details = document.createElement('p');
       (item.details || []).forEach(function (line, index) {
@@ -150,7 +265,7 @@
 
     (data.schedule || []).forEach(function (row) {
       items.push({
-        section: 'Schedule',
+        section: text('search.sections.schedule'),
         title: row.subject + ' (' + row.day + ')',
         detail: [row.time, row.teacher, row.room].filter(Boolean).join(' | ')
       });
@@ -158,16 +273,16 @@
 
     (data.lessons || []).forEach(function (lesson) {
       items.push({
-        section: 'Lessons',
-        title: lesson.subject || 'Lesson',
+        section: text('search.sections.lessons'),
+        title: lesson.subject || text('lessons.untitled'),
         detail: (lesson.topics || []).join(', ')
       });
     });
 
     (data.dates || []).forEach(function (date) {
       items.push({
-        section: 'Important Dates',
-        title: date.event || 'Important date',
+        section: text('search.sections.dates'),
+        title: date.event || text('dates.title'),
         detail: date.date || ''
       });
     });
@@ -175,8 +290,8 @@
     (data.contacts || []).forEach(function (contact) {
       var linkText = (contact.links || []).map(function (link) { return link.label; });
       items.push({
-        section: 'Contacts',
-        title: contact.title || 'Contact',
+        section: text('search.sections.contacts'),
+        title: contact.title || text('contacts.defaultTitle'),
         detail: (contact.details || []).concat(linkText).join(', ')
       });
     });
@@ -192,7 +307,7 @@
     if (results.length === 0) {
       var none = document.createElement('p');
       none.className = 'no-results';
-      none.textContent = 'No results found for "' + query + '".';
+      none.textContent = text('search.noResults').replace('{query}', query);
       resultsEl.appendChild(none);
       return;
     }
@@ -247,15 +362,79 @@
   function setupScheduleTabs() {
     document.querySelectorAll('.tab').forEach(function (tab) {
       tab.addEventListener('click', function () {
-        document.querySelectorAll('.tab').forEach(function (item) {
-          item.classList.remove('active');
-        });
-        tab.classList.add('active');
+        currentScheduleDay = tab.dataset.day;
+        applyScheduleFilter();
+      });
+    });
+  }
 
-        var day = tab.dataset.day;
-        document.querySelectorAll('#scheduleTable tbody tr').forEach(function (row) {
-          row.style.display = (day === 'all' || row.dataset.day === day) ? '' : 'none';
-        });
+  function applyScheduleFilter() {
+    document.querySelectorAll('.tab').forEach(function (tab) {
+      tab.classList.toggle('active', tab.dataset.day === currentScheduleDay);
+    });
+
+    document.querySelectorAll('#scheduleTable tbody tr').forEach(function (row) {
+      row.style.display = (currentScheduleDay === 'all' || row.dataset.day === currentScheduleDay) ? '' : 'none';
+    });
+  }
+
+  function applyTextTranslations() {
+    document.documentElement.lang = currentLanguage;
+    document.title = text('page.title');
+
+    document.querySelectorAll('[data-i18n]').forEach(function (element) {
+      element.textContent = text(element.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (element) {
+      element.setAttribute('placeholder', text(element.dataset.i18nPlaceholder));
+    });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(function (element) {
+      element.setAttribute('aria-label', text(element.dataset.i18nAriaLabel));
+    });
+
+    document.querySelectorAll('[data-language]').forEach(function (button) {
+      var isSelected = button.dataset.language === currentLanguage;
+      button.classList.toggle('language-switcher__button--active', isSelected);
+      button.setAttribute('aria-pressed', String(isSelected));
+    });
+
+    var backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+      backToTop.title = text('backToTop');
+      backToTop.setAttribute('aria-label', text('backToTop'));
+    }
+  }
+
+  function renderSite() {
+    var data = getSiteData();
+    renderSchedule(data.schedule);
+    renderLessons(data.lessons);
+    renderDates(data.dates);
+    renderContacts(data.contacts);
+    applyScheduleFilter();
+    setupScrollAnimation();
+  }
+
+  function setLanguage(language) {
+    if (!TEXT[language]) return;
+    currentLanguage = language;
+    try {
+      localStorage.setItem(LANGUAGE_KEY, language);
+    } catch (error) {
+      // The page remains usable if browser storage is unavailable.
+    }
+
+    applyTextTranslations();
+    renderSite();
+
+    var modal = document.getElementById('searchModal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  function setupLanguageSwitcher() {
+    document.querySelectorAll('[data-language]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        setLanguage(button.dataset.language);
       });
     });
   }
@@ -343,17 +522,12 @@
   }
 
   function init() {
-    var data = getSiteData();
-    renderSchedule(data.schedule);
-    renderLessons(data.lessons);
-    renderDates(data.dates);
-    renderContacts(data.contacts);
-
     setupScheduleTabs();
     setupSearch();
     setupBurgerMenu();
     setupBackToTop();
-    setupScrollAnimation();
+    setupLanguageSwitcher();
+    setLanguage(currentLanguage);
   }
 
   window.doSearch = doSearch;

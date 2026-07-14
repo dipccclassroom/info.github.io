@@ -1108,12 +1108,20 @@
   }
 
   function buildDataFile(data) {
+    var existingLocalizedData = window.DIPCC_LOCALIZED_DATA || {};
+    var localizedData = {
+      en: normalizeData(existingLocalizedData.en || data),
+      uk: normalizeData(data)
+    };
+
     return [
       '(function (window) {',
       "  'use strict';",
       '',
-      '  var data = ' + JSON.stringify(normalizeData(data), null, 2).replace(/\n/g, '\n  ') + ';',
+      '  var localizedData = ' + JSON.stringify(localizedData, null, 2).replace(/\n/g, '\n  ') + ';',
+      '  var data = localizedData.uk;',
       '',
+      '  window.DIPCC_LOCALIZED_DATA = localizedData;',
       '  window.DIPCC_DEFAULT_DATA = data;',
       '  window.DIPCC_DATA = data;',
       '})(window);',
