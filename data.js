@@ -173,12 +173,10 @@
       {
         "title": "Email",
         "icon": "✉",
-        "details": [
-          "dipt.dp.ua@ukr.net"
-        ],
+        "details": [],
         "links": [
           {
-            "label": "mailto:dipt.dp.ua@ukr.net",
+            "label": "dipt.dp.ua@ukr.net",
             "url": "#"
           }
         ]
@@ -187,7 +185,7 @@
         "title": "Office Hours",
         "icon": "⏰",
         "details": [
-          "Mon-Fri 08:00-17:00"
+          "Mon-Fri 08:00-16:00"
         ],
         "links": []
       },
@@ -195,7 +193,7 @@
         "title": "Library",
         "icon": "📖",
         "details": [
-          "Mon-Sat 08:00-20:00"
+          "Mon-Sat 10:00-14:00"
         ],
         "links": []
       },
