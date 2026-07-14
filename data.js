@@ -201,7 +201,7 @@
         "links": [
           {
             "label": "College Website",
-            "url": "dipt.dp.ua"
+            "url": "https://dipt.dp.ua"
           },
           {
             "label": "Student Portal",
