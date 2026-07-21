@@ -19,6 +19,7 @@
         <a href="#lessons" class="nav__link" data-i18n="nav.lessons">Заняття</a>
         <a href="#dates" class="nav__link" data-i18n="nav.dates">Важливі дати</a>
         <a href="#contacts" class="nav__link" data-i18n="nav.contacts">Контакти</a>
+        <a href="#qr" class="nav__link" data-i18n="nav.qr">QR-код</a>
       </nav>
       <div class="header__actions">
         <div class="language-switcher" role="group" aria-label="Language selector" data-i18n-aria-label="language.label">
@@ -82,6 +83,23 @@
       <div class="container">
         <h2 class="section__title" data-i18n="contacts.title">Контакти й ресурси</h2>
         <div class="contacts-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="qr">
+      <div class="container qr-code-layout">
+        <div class="qr-code-copy">
+          <h2 class="section__title" data-i18n="qr.title">Швидкий доступ за QR-кодом</h2>
+          <p class="qr-code-description" data-i18n="qr.description">Відскануйте код камерою телефона або натисніть на нього, щоб відкрити посилання.</p>
+          <a class="qr-code-button" id="qrCodeButton" href="#" target="_blank" rel="noopener noreferrer" data-i18n-aria-label="qr.linkLabel">
+            <span data-i18n="qr.open">Відкрити посилання</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4h9v9M16 4 6 14" /></svg>
+          </a>
+        </div>
+        <a class="qr-code-card" id="qrCodeLink" href="#" target="_blank" rel="noopener noreferrer" data-i18n-aria-label="qr.linkLabel">
+          <img id="qrCodeImage" src="" alt="QR-код для швидкого доступу" data-i18n-alt="qr.imageAlt" />
+          <span data-i18n="qr.clickHint">Натисніть, щоб перейти</span>
+        </a>
       </div>
     </section>
   </main>

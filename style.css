@@ -66,6 +66,17 @@ a:hover { text-decoration: underline; }
 .contact-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
 .contact-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
 .contact-card a { color: var(--primary); display: block; }
+.qr-code-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 360px); align-items: center; gap: clamp(36px, 8vw, 96px); }
+.qr-code-copy { max-width: 580px; }
+.qr-code-copy .section__title { margin-bottom: 16px; }
+.qr-code-description { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 24px; max-width: 540px; }
+.qr-code-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 18px; border-radius: 10px; background: var(--primary); color: #fff; font-weight: 600; transition: background var(--transition), transform var(--transition), box-shadow var(--transition); }
+.qr-code-button:hover { background: var(--primary-dark); text-decoration: none; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.22); }
+.qr-code-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.qr-code-card { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 20px; border: 1px solid var(--border); border-radius: 24px; background: #fff; box-shadow: var(--shadow-lg); color: var(--text-muted); font-size: .86rem; font-weight: 600; text-align: center; transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); }
+.qr-code-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(15,23,42,.16); border-color: #bfdbfe; text-decoration: none; }
+.qr-code-card img { display: block; width: 100%; max-width: 320px; aspect-ratio: 1; object-fit: contain; border-radius: 12px; background: #fff; }
+.qr-code-button:focus-visible, .qr-code-card:focus-visible { outline: 3px solid rgba(37,99,235,.35); outline-offset: 4px; }
 .footer { background: var(--text); color: #94a3b8; padding: 32px 0; text-align: center; }
 .footer__inner { display: flex; flex-direction: column; gap: 6px; }
 .footer__update { font-size: 0.85rem; opacity: 0.7; }
@@ -91,4 +102,7 @@ a:hover { text-decoration: underline; }
   .section__title { font-size: 1.4rem; }
   .lessons-grid, .contacts-grid { grid-template-columns: 1fr; }
   .dates-grid { grid-template-columns: repeat(2, 1fr); }
+  .qr-code-layout { grid-template-columns: 1fr; gap: 30px; }
+  .qr-code-copy { text-align: center; margin: 0 auto; }
+  .qr-code-card { width: min(100%, 340px); margin: 0 auto; }
 }

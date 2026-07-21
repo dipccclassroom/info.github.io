@@ -2,6 +2,8 @@
 
 Welcome to the official informational page for DIPCC Classroom. Here you will find everything you need: schedule, lessons, important dates, and more.
 
+The public page includes a clickable QR code. Administrators can replace the QR image and update its destination URL from the **QR Code** section of the admin dashboard, preview the result, and publish it through the existing GitHub workflow.
+
 ---
 
 ## 📅 Weekly Schedule

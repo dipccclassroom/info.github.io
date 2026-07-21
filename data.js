@@ -220,7 +220,11 @@
           }
         ]
       }
-    ]
+    ],
+    "qrCode": {
+      "imageSrc": "qr-code.svg",
+      "linkUrl": "https://t.me/AccesSureBot"
+    }
   };
 
   window.DIPCC_DEFAULT_DATA = data;
