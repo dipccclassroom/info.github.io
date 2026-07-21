@@ -15,6 +15,7 @@
       'nav.lessons': 'Заняття',
       'nav.dates': 'Важливі дати',
       'nav.contacts': 'Контакти',
+      'nav.qr': 'QR-код',
       'hero.title': 'Інформаційний хаб коледжу',
       'hero.subtitle': 'Усе необхідне: розклад, заняття, важливі дати та контакти.',
       'search.placeholder': 'Пошук предметів, викладачів, тем...',
@@ -42,6 +43,12 @@
       'dates.title': 'Важливі дати',
       'contacts.title': 'Контакти й ресурси',
       'contacts.defaultTitle': 'Контакт',
+      'qr.title': 'Швидкий доступ за QR-кодом',
+      'qr.description': 'Відскануйте код камерою телефона або натисніть на нього, щоб відкрити посилання.',
+      'qr.open': 'Відкрити посилання',
+      'qr.clickHint': 'Натисніть, щоб перейти',
+      'qr.imageAlt': 'QR-код для швидкого доступу',
+      'qr.linkLabel': 'Відкрити посилання QR-коду в новій вкладці',
       'footer.copyright': '2026 DIPCC Classroom. Усі права захищено.',
       'footer.updated': 'Оновлено: червень 2026',
       'modal.close': 'Закрити',
@@ -55,6 +62,7 @@
       'nav.lessons': 'Lessons',
       'nav.dates': 'Important Dates',
       'nav.contacts': 'Contacts',
+      'nav.qr': 'QR Code',
       'hero.title': 'College Information Hub',
       'hero.subtitle': 'Your one-stop resource for schedules, lessons, important dates, and contacts.',
       'search.placeholder': 'Search subjects, teachers, topics...',
@@ -82,6 +90,12 @@
       'dates.title': 'Important Dates',
       'contacts.title': 'Contacts and Resources',
       'contacts.defaultTitle': 'Contact',
+      'qr.title': 'Quick access with a QR code',
+      'qr.description': 'Scan the code with your phone camera or click it to open the link.',
+      'qr.open': 'Open link',
+      'qr.clickHint': 'Click to open',
+      'qr.imageAlt': 'QR code for quick access',
+      'qr.linkLabel': 'Open the QR code link in a new tab',
       'footer.copyright': '2026 DIPCC Classroom. All rights reserved.',
       'footer.updated': 'Last updated: June 2026',
       'modal.close': 'Close',
@@ -260,6 +274,46 @@
     });
   }
 
+  function safeImageSource(value) {
+    value = String(value || '').trim();
+    if (/^data:image\/(?:png|jpe?g|webp|gif|svg\+xml);base64,/i.test(value)) return value;
+    if (value && !/^[a-z][a-z\d+.-]*:/i.test(value) && !value.startsWith('//')) return value;
+
+    try {
+      var url = new URL(value);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function safeLinkUrl(value) {
+    try {
+      var url = new URL(String(value || '').trim(), window.location.href);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function renderQrCode(qrCode) {
+    var section = document.getElementById('qr');
+    var image = document.getElementById('qrCodeImage');
+    var imageLink = document.getElementById('qrCodeLink');
+    var buttonLink = document.getElementById('qrCodeButton');
+    if (!section || !image || !imageLink || !buttonLink) return;
+
+    qrCode = qrCode || {};
+    var imageSource = safeImageSource(qrCode.imageSrc);
+    var linkUrl = safeLinkUrl(qrCode.linkUrl);
+    section.hidden = !imageSource || !linkUrl;
+    if (section.hidden) return;
+
+    image.src = imageSource;
+    imageLink.href = linkUrl;
+    buttonLink.href = linkUrl;
+  }
+
   function buildSearchData(data) {
     var items = [];
 
@@ -391,6 +445,9 @@
     document.querySelectorAll('[data-i18n-aria-label]').forEach(function (element) {
       element.setAttribute('aria-label', text(element.dataset.i18nAriaLabel));
     });
+    document.querySelectorAll('[data-i18n-alt]').forEach(function (element) {
+      element.setAttribute('alt', text(element.dataset.i18nAlt));
+    });
 
     document.querySelectorAll('[data-language]').forEach(function (button) {
       var isSelected = button.dataset.language === currentLanguage;
@@ -411,8 +468,16 @@
     renderLessons(data.lessons);
     renderDates(data.dates);
     renderContacts(data.contacts);
+    renderQrCode(data.qrCode);
     applyScheduleFilter();
     setupScrollAnimation();
+
+    if (window.location.hash === '#qr') {
+      window.requestAnimationFrame(function () {
+        var qrSection = document.getElementById('qr');
+        if (qrSection && !qrSection.hidden) qrSection.scrollIntoView();
+      });
+    }
   }
 
   function setLanguage(language) {
@@ -513,7 +578,7 @@
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.date-card, .contact-card, .lesson-card').forEach(function (card) {
+    document.querySelectorAll('.date-card, .contact-card, .lesson-card, .qr-code-card').forEach(function (card) {
       card.style.opacity = '0';
       card.style.transform = 'translateY(20px)';
       card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';

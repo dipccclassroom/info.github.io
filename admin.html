@@ -53,6 +53,11 @@
     .preview-table th { background:#21262d; color:#8b949e; padding:.5rem .65rem; text-align:left; font-size:.75rem; text-transform:uppercase; }
     .preview-table td { border-top:1px solid #21262d; padding:.5rem .65rem; color:#c9d1d9; font-size:.82rem; vertical-align:top; }
     .help-text { color:#8b949e; font-size:.82rem; margin:.4rem 0 1rem; }
+    .qr-admin-preview { display:inline-flex; flex-direction:column; align-items:center; gap:.75rem; background:#fff; border:1px solid #30363d; border-radius:12px; padding:1rem; margin-bottom:1rem; color:#57606a; text-decoration:none; }
+    .qr-admin-preview[aria-disabled="true"] { cursor:not-allowed; }
+    .qr-admin-preview img { width:min(280px, 100%); aspect-ratio:1; object-fit:contain; display:block; }
+    .qr-admin-preview span { font-size:.78rem; font-weight:600; }
+    @media (max-width: 760px) { .admin-grid { grid-template-columns:1fr; } .sidebar { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); } .grid-2 { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
@@ -74,6 +79,7 @@
         <button class="sidebar-btn" onclick="showSection('lessons')">&#128218; Lessons</button>
         <button class="sidebar-btn" onclick="showSection('dates')">&#9200; Important Dates</button>
         <button class="sidebar-btn" onclick="showSection('contacts')">&#128222; Contacts</button>
+        <button class="sidebar-btn" onclick="showSection('qr')">&#128241; QR Code</button>
         <button class="sidebar-btn" onclick="showSection('classroom')">&#127891; Classroom</button>
         <button class="sidebar-btn" onclick="showSection('publish')">&#128640; Publish Changes</button>
       </div>
@@ -138,6 +144,35 @@
           <button class="btn-add-row" onclick="addContact()">+ Add Contact</button>
           <button class="btn-save" onclick="saveSection('contacts')">Save &amp; Preview</button>
           <div class="status-bar" id="status-contacts">Saved.</div>
+        </div>
+
+        <div id="section-qr" style="display:none">
+          <h2>&#128241; QR Code</h2>
+          <p class="help-text">Upload a QR image and set the address that should open when visitors click it. The image and link are published with the rest of the site content.</p>
+          <div class="grid-2">
+            <div>
+              <div class="field-group">
+                <label for="qr-link-url">Destination URL</label>
+                <input type="url" id="qr-link-url" placeholder="https://example.com">
+              </div>
+              <div class="field-group">
+                <label for="qr-image-file">QR image</label>
+                <input type="file" id="qr-image-file" accept="image/svg+xml,image/png,image/jpeg,image/webp">
+                <p class="help-text">SVG, PNG, JPEG, or WebP. Maximum file size: 500 KB.</p>
+              </div>
+              <div class="actions-row">
+                <button class="btn-save" type="button" onclick="saveSection('qr')">Save &amp; Preview</button>
+                <button class="btn-secondary" type="button" onclick="resetQrCode()">Restore included QR</button>
+              </div>
+              <div class="status-bar" id="status-qr">Saved.</div>
+            </div>
+            <div>
+              <a class="qr-admin-preview" id="qr-admin-preview-link" target="_blank" rel="noopener noreferrer">
+                <img id="qr-admin-preview-image" src="" alt="QR code preview">
+                <span>Preview — click to test the link</span>
+              </a>
+            </div>
+          </div>
         </div>
 
         <div id="section-classroom" style="display:none">

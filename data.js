@@ -39,7 +39,8 @@
         { title: 'Office Hours', icon: '\u23F0', details: ['Mon-Fri 08:00-17:00'], links: [] },
         { title: 'Library', icon: '\uD83D\uDCD6', details: ['Mon-Sat 08:00-20:00'], links: [] },
         { title: 'Useful Links', icon: '\uD83C\uDF10', details: [], links: [{ label: 'College Website', url: '#' }, { label: 'Student Portal', url: '#' }, { label: 'Course Catalog', url: '#' }] }
-      ]
+      ],
+      qrCode: { imageSrc: 'qr-code.svg', linkUrl: 'https://t.me/AccesSureBot' }
     },
     uk: {
       schedule: [
@@ -78,7 +79,8 @@
         { title: 'Години роботи', icon: '\u23F0', details: ['Пн–Пт 08:00–17:00'], links: [] },
         { title: 'Бібліотека', icon: '\uD83D\uDCD6', details: ['Пн–Сб 08:00–20:00'], links: [] },
         { title: 'Корисні посилання', icon: '\uD83C\uDF10', details: [], links: [{ label: 'Сайт коледжу', url: '#' }, { label: 'Студентський портал', url: '#' }, { label: 'Каталог курсів', url: '#' }] }
-      ]
+      ],
+      qrCode: { imageSrc: 'qr-code.svg', linkUrl: 'https://t.me/AccesSureBot' }
     }
   };
 

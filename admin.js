@@ -7,7 +7,9 @@
   var CLASSROOM_SECRET_KEY = 'dipcc_classroom_secret';
   var REPO = 'dipccclassroom/info.github.io';
   var DATA_FILE = 'data.js';
-  var SECTION_NAMES = ['schedule', 'lessons', 'dates', 'contacts', 'classroom', 'publish'];
+  var DEFAULT_QR_CODE = { imageSrc: 'qr-code.svg', linkUrl: 'https://t.me/AccesSureBot' };
+  var QR_IMAGE_MAX_BYTES = 500 * 1024;
+  var SECTION_NAMES = ['schedule', 'lessons', 'dates', 'contacts', 'qr', 'classroom', 'publish'];
   var CLASSROOM_BRIDGE_TIMEOUT_MS = 120000;
   var content = loadInitialContent();
   var classroomTasks = [];
@@ -27,11 +29,16 @@
 
   function normalizeData(data) {
     data = data || {};
+    var qrCode = data.qrCode || {};
     return {
       schedule: Array.isArray(data.schedule) ? data.schedule : [],
       lessons: Array.isArray(data.lessons) ? data.lessons : [],
       dates: Array.isArray(data.dates) ? data.dates : [],
-      contacts: Array.isArray(data.contacts) ? data.contacts : []
+      contacts: Array.isArray(data.contacts) ? data.contacts : [],
+      qrCode: {
+        imageSrc: typeof qrCode.imageSrc === 'string' && qrCode.imageSrc ? qrCode.imageSrc : DEFAULT_QR_CODE.imageSrc,
+        linkUrl: typeof qrCode.linkUrl === 'string' && qrCode.linkUrl ? qrCode.linkUrl : DEFAULT_QR_CODE.linkUrl
+      }
     };
   }
 
@@ -1081,6 +1088,86 @@
     renderContacts();
   }
 
+  function safeLinkUrl(value) {
+    try {
+      var url = new URL(String(value || '').trim(), window.location.href);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function updateQrPreview() {
+    var image = document.getElementById('qr-admin-preview-image');
+    var link = document.getElementById('qr-admin-preview-link');
+    if (!image || !link) return;
+
+    image.src = content.qrCode.imageSrc;
+    var linkUrl = safeLinkUrl(content.qrCode.linkUrl);
+    if (linkUrl) {
+      link.href = linkUrl;
+      link.removeAttribute('aria-disabled');
+    } else {
+      link.removeAttribute('href');
+      link.setAttribute('aria-disabled', 'true');
+    }
+  }
+
+  function setupQrEditor() {
+    var linkInput = document.getElementById('qr-link-url');
+    var fileInput = document.getElementById('qr-image-file');
+    if (!linkInput || !fileInput) return;
+
+    linkInput.value = content.qrCode.linkUrl;
+    linkInput.addEventListener('input', function () {
+      content.qrCode.linkUrl = linkInput.value.trim();
+      saveDraft();
+      updateQrPreview();
+    });
+
+    fileInput.addEventListener('change', function () {
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      var allowedTypes = ['image/svg+xml', 'image/png', 'image/jpeg', 'image/webp'];
+      if (allowedTypes.indexOf(file.type) === -1) {
+        setStatus('qr', 'Choose an SVG, PNG, JPEG, or WebP image.', 'error');
+        fileInput.value = '';
+        return;
+      }
+      if (file.size > QR_IMAGE_MAX_BYTES) {
+        setStatus('qr', 'That image is larger than 500 KB. Choose a smaller QR image.', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function () {
+        content.qrCode.imageSrc = String(reader.result || '');
+        saveDraft();
+        updateQrPreview();
+        setStatus('qr', 'QR image updated locally. Preview it, then publish when ready.', 'success');
+      };
+      reader.onerror = function () {
+        setStatus('qr', 'Could not read that image file.', 'error');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    updateQrPreview();
+  }
+
+  function resetQrCode() {
+    content.qrCode = clone(DEFAULT_QR_CODE);
+    saveDraft();
+    var linkInput = document.getElementById('qr-link-url');
+    var fileInput = document.getElementById('qr-image-file');
+    if (linkInput) linkInput.value = content.qrCode.linkUrl;
+    if (fileInput) fileInput.value = '';
+    updateQrPreview();
+    setStatus('qr', 'Restored the included QR image and link.', 'success');
+  }
+
   function createFieldGroup(labelText, control) {
     var group = document.createElement('div');
     group.className = 'field-group';
@@ -1109,9 +1196,12 @@
 
   function buildDataFile(data) {
     var existingLocalizedData = window.DIPCC_LOCALIZED_DATA || {};
+    var ukData = normalizeData(data);
+    var enData = normalizeData(existingLocalizedData.en || data);
+    enData.qrCode = clone(ukData.qrCode);
     var localizedData = {
-      en: normalizeData(existingLocalizedData.en || data),
-      uk: normalizeData(data)
+      en: enData,
+      uk: ukData
     };
 
     return [
@@ -1214,6 +1304,7 @@
     renderLessons();
     renderDates();
     renderContacts();
+    setupQrEditor();
   }
 
   function hydratePublishForm() {
@@ -1236,6 +1327,7 @@
   window.addLesson = addLesson;
   window.addDateRow = addDateRow;
   window.addContact = addContact;
+  window.resetQrCode = resetQrCode;
   window.saveSection = saveSection;
   window.publishChanges = publishChanges;
   window.logout = logout;
