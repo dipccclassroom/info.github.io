@@ -1,126 +1,18 @@
+// Public site: rendering, schedule filter, search, language switching, and page chrome.
 (function () {
   'use strict';
 
+  var utils = window.DIPCC_UTILS;
+  var i18n = window.DIPCC_I18N;
   var DRAFT_KEY = 'dipcc_admin_draft';
-  var LANGUAGE_KEY = 'dipcc_language';
-  var DEFAULT_LANGUAGE = 'uk';
-  var currentLanguage = DEFAULT_LANGUAGE;
+  var currentLanguage = i18n.readSavedLanguage();
   var currentScheduleDay = 'all';
-  var TEXT = {
-    uk: {
-      'page.title': 'DIPCC Classroom — Інформація для студентів',
-      'language.label': 'Вибір мови',
-      'menu.toggle': 'Відкрити меню',
-      'nav.schedule': 'Розклад',
-      'nav.lessons': 'Заняття',
-      'nav.dates': 'Важливі дати',
-      'nav.contacts': 'Контакти',
-      'nav.qr': 'QR-код',
-      'hero.title': 'Інформаційний хаб коледжу',
-      'hero.subtitle': 'Усе необхідне: розклад, заняття, важливі дати та контакти.',
-      'search.placeholder': 'Пошук предметів, викладачів, тем...',
-      'search.button': 'Пошук',
-      'search.results': 'Результати пошуку',
-      'search.noResults': 'За запитом «{query}» нічого не знайдено.',
-      'search.sections.schedule': 'Розклад',
-      'search.sections.lessons': 'Заняття',
-      'search.sections.dates': 'Важливі дати',
-      'search.sections.contacts': 'Контакти',
-      'schedule.title': 'Щотижневий розклад',
-      'schedule.allDays': 'Усі дні',
-      'schedule.day': 'День',
-      'schedule.time': 'Час',
-      'schedule.subject': 'Предмет',
-      'schedule.teacher': 'Викладач',
-      'schedule.room': 'Аудиторія',
-      'days.monday': 'Понеділок',
-      'days.tuesday': 'Вівторок',
-      'days.wednesday': 'Середа',
-      'days.thursday': 'Четвер',
-      'days.friday': 'П’ятниця',
-      'lessons.title': 'Заняття та теми',
-      'lessons.untitled': 'Без назви',
-      'dates.title': 'Важливі дати',
-      'contacts.title': 'Контакти й ресурси',
-      'contacts.defaultTitle': 'Контакт',
-      'qr.title': 'Швидкий доступ за QR-кодом',
-      'qr.description': 'Відскануйте код камерою телефона або натисніть на нього, щоб відкрити посилання.',
-      'qr.open': 'Відкрити посилання',
-      'qr.clickHint': 'Натисніть, щоб перейти',
-      'qr.imageAlt': 'QR-код для швидкого доступу',
-      'qr.linkLabel': 'Відкрити посилання QR-коду в новій вкладці',
-      'footer.copyright': '2026 DIPCC Classroom. Усі права захищено.',
-      'footer.updated': 'Оновлено: червень 2026',
-      'modal.close': 'Закрити',
-      'backToTop': 'На початок'
-    },
-    en: {
-      'page.title': 'DIPCC Classroom — Student Information',
-      'language.label': 'Language selector',
-      'menu.toggle': 'Toggle menu',
-      'nav.schedule': 'Schedule',
-      'nav.lessons': 'Lessons',
-      'nav.dates': 'Important Dates',
-      'nav.contacts': 'Contacts',
-      'nav.qr': 'QR Code',
-      'hero.title': 'College Information Hub',
-      'hero.subtitle': 'Your one-stop resource for schedules, lessons, important dates, and contacts.',
-      'search.placeholder': 'Search subjects, teachers, topics...',
-      'search.button': 'Search',
-      'search.results': 'Search Results',
-      'search.noResults': 'No results found for “{query}”.',
-      'search.sections.schedule': 'Schedule',
-      'search.sections.lessons': 'Lessons',
-      'search.sections.dates': 'Important Dates',
-      'search.sections.contacts': 'Contacts',
-      'schedule.title': 'Weekly Schedule',
-      'schedule.allDays': 'All Days',
-      'schedule.day': 'Day',
-      'schedule.time': 'Time',
-      'schedule.subject': 'Subject',
-      'schedule.teacher': 'Teacher',
-      'schedule.room': 'Room',
-      'days.monday': 'Monday',
-      'days.tuesday': 'Tuesday',
-      'days.wednesday': 'Wednesday',
-      'days.thursday': 'Thursday',
-      'days.friday': 'Friday',
-      'lessons.title': 'Lessons and Topics',
-      'lessons.untitled': 'Untitled lesson',
-      'dates.title': 'Important Dates',
-      'contacts.title': 'Contacts and Resources',
-      'contacts.defaultTitle': 'Contact',
-      'qr.title': 'Quick access with a QR code',
-      'qr.description': 'Scan the code with your phone camera or click it to open the link.',
-      'qr.open': 'Open link',
-      'qr.clickHint': 'Click to open',
-      'qr.imageAlt': 'QR code for quick access',
-      'qr.linkLabel': 'Open the QR code link in a new tab',
-      'footer.copyright': '2026 DIPCC Classroom. All rights reserved.',
-      'footer.updated': 'Last updated: June 2026',
-      'modal.close': 'Close',
-      'backToTop': 'Back to top'
-    }
-  };
-  currentLanguage = readSavedLanguage();
-
-  function readSavedLanguage() {
-    try {
-      var language = localStorage.getItem(LANGUAGE_KEY);
-      return TEXT && TEXT[language] ? language : DEFAULT_LANGUAGE;
-    } catch (error) {
-      return DEFAULT_LANGUAGE;
-    }
-  }
 
   function text(key) {
-    return (TEXT[currentLanguage] && TEXT[currentLanguage][key]) || TEXT[DEFAULT_LANGUAGE][key] || key;
+    return i18n.text(currentLanguage, key);
   }
 
-  function clone(value) {
-    return JSON.parse(JSON.stringify(value || {}));
-  }
-
+  // Admins see their unpublished local draft instead of the deployed data.
   function readAdminDraft() {
     try {
       if (sessionStorage.getItem('dipcc_role') !== 'admin') return null;
@@ -136,7 +28,7 @@
     if (draft) return draft;
 
     var localizedData = window.DIPCC_LOCALIZED_DATA || {};
-    return clone(localizedData[currentLanguage] || window.DIPCC_DATA || window.DIPCC_DEFAULT_DATA);
+    return utils.clone(localizedData[currentLanguage] || window.DIPCC_DATA || window.DIPCC_DEFAULT_DATA);
   }
 
   function getDayKey(item) {
@@ -274,28 +166,6 @@
     });
   }
 
-  function safeImageSource(value) {
-    value = String(value || '').trim();
-    if (/^data:image\/(?:png|jpe?g|webp|gif|svg\+xml);base64,/i.test(value)) return value;
-    if (value && !/^[a-z][a-z\d+.-]*:/i.test(value) && !value.startsWith('//')) return value;
-
-    try {
-      var url = new URL(value);
-      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
-    } catch (error) {
-      return '';
-    }
-  }
-
-  function safeLinkUrl(value) {
-    try {
-      var url = new URL(String(value || '').trim(), window.location.href);
-      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
-    } catch (error) {
-      return '';
-    }
-  }
-
   function renderQrCode(qrCode) {
     var section = document.getElementById('qr');
     var image = document.getElementById('qrCodeImage');
@@ -304,8 +174,8 @@
     if (!section || !image || !imageLink || !buttonLink) return;
 
     qrCode = qrCode || {};
-    var imageSource = safeImageSource(qrCode.imageSrc);
-    var linkUrl = safeLinkUrl(qrCode.linkUrl);
+    var imageSource = utils.safeImageSource(qrCode.imageSrc);
+    var linkUrl = utils.safeLinkUrl(qrCode.linkUrl);
     section.hidden = !imageSource || !linkUrl;
     if (section.hidden) return;
 
@@ -481,13 +351,9 @@
   }
 
   function setLanguage(language) {
-    if (!TEXT[language]) return;
+    if (!i18n.isSupported(language)) return;
     currentLanguage = language;
-    try {
-      localStorage.setItem(LANGUAGE_KEY, language);
-    } catch (error) {
-      // The page remains usable if browser storage is unavailable.
-    }
+    i18n.saveLanguage(language);
 
     applyTextTranslations();
     renderSite();
@@ -545,7 +411,7 @@
   function setupBackToTop() {
     var button = document.createElement('button');
     button.id = 'backToTop';
-    button.title = 'Back to top';
+    button.title = text('backToTop');
     button.textContent = '^';
     document.body.appendChild(button);
 
@@ -594,10 +460,6 @@
     setupLanguageSwitcher();
     setLanguage(currentLanguage);
   }
-
-  window.doSearch = doSearch;
-  window.closeSearch = closeSearch;
-  window.toggleLesson = toggleLesson;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

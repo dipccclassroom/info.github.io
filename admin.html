@@ -4,61 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard — DIPCC Classroom</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    :root { --admin-accent: #f9a825; }
-    body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; margin: 0; }
-    .admin-header { background: #161b22; border-bottom: 2px solid var(--admin-accent); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
-    .admin-header h1 { margin: 0; font-size: 1.3rem; color: var(--admin-accent); }
-    .badge { background: var(--admin-accent); color: #000; font-size: .7rem; font-weight: 700; padding: .2rem .5rem; border-radius: 4px; margin-left: .5rem; }
-    .admin-container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
-    .admin-grid { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; }
-    .sidebar { display: flex; flex-direction: column; gap: .5rem; }
-    .sidebar-btn { background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: .75rem 1rem; border-radius: 8px; cursor: pointer; text-align: left; font-size: .875rem; display: flex; align-items: center; gap: .6rem; }
-    .sidebar-btn:hover, .sidebar-btn.active { border-color: var(--admin-accent); color: var(--admin-accent); background: #1a1e2a; }
-    .editor-panel { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 1.5rem; }
-    .editor-panel h2 { margin: 0 0 1rem; color: var(--admin-accent); font-size: 1.1rem; }
-    .field-group { margin-bottom: 1.2rem; }
-    .field-group label { display: block; color: #8b949e; font-size: .8rem; margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .05em; }
-    .field-group input, .field-group textarea, .field-group select { width: 100%; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: .6rem .8rem; border-radius: 6px; font-size: .9rem; box-sizing: border-box; }
-    .field-group input:focus, .field-group textarea:focus { outline: none; border-color: var(--admin-accent); }
-    .field-group textarea { min-height: 120px; resize: vertical; font-family: monospace; }
-    .btn-save { background: var(--admin-accent); color: #000; font-weight: 700; padding: .65rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: .9rem; }
-    .btn-save:hover { background: #f59e0b; }
-    .btn-secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; font-weight: 600; padding: .6rem 1rem; border-radius: 6px; cursor: pointer; font-size: .85rem; }
-    .btn-secondary:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
-    .status-bar { margin-top: 1rem; font-size: .85rem; color: #3fb950; display: none; }
-    .table-editor { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-    .table-editor th { background: #21262d; color: #8b949e; padding: .5rem .75rem; text-align: left; font-size: .8rem; }
-    .table-editor td { padding: .4rem; border-bottom: 1px solid #21262d; }
-    .table-editor td input, .table-editor td select { background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: .35rem .5rem; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: .85rem; }
-    .btn-add-row { background: #21262d; border: 1px dashed #444; color: #8b949e; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-size: .8rem; width: 100%; margin-bottom: 1rem; }
-    .btn-add-row:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
-    .logout-btn { background: transparent; border: 1px solid #da3633; color: #da3633; padding: .35rem .8rem; border-radius: 6px; cursor: pointer; font-size: .8rem; }
-    .logout-btn:hover { background: #da3633; color: #fff; }
-    .del-btn { background: #da3633; border: none; color: #fff; padding: .3rem .6rem; border-radius: 4px; cursor: pointer; }
-    .token-note { background: #1a1e2a; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; font-size: .82rem; color: #8b949e; margin-bottom: 1.5rem; }
-    .token-note strong { color: var(--admin-accent); }
-    .lesson-card, .contact-card { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: .75rem; }
-    .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
-    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-    .schedule-import { background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:1rem; margin-bottom:1rem; }
-    .schedule-import h3 { color:#c9d1d9; font-size:.95rem; margin:0 0 .35rem; }
-    .schedule-import p { color:#8b949e; font-size:.82rem; margin:0 0 .9rem; }
-    .actions-row { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }
-    .check-row { display:flex; gap:.5rem; align-items:center; color:#8b949e; font-size:.85rem; margin-top:.6rem; }
-    .check-row input { width:auto; }
-    .preview-wrap { overflow-x:auto; border:1px solid #30363d; border-radius:8px; margin-top:1rem; }
-    .preview-table { width:100%; min-width:760px; border-collapse:collapse; }
-    .preview-table th { background:#21262d; color:#8b949e; padding:.5rem .65rem; text-align:left; font-size:.75rem; text-transform:uppercase; }
-    .preview-table td { border-top:1px solid #21262d; padding:.5rem .65rem; color:#c9d1d9; font-size:.82rem; vertical-align:top; }
-    .help-text { color:#8b949e; font-size:.82rem; margin:.4rem 0 1rem; }
-    .qr-admin-preview { display:inline-flex; flex-direction:column; align-items:center; gap:.75rem; background:#fff; border:1px solid #30363d; border-radius:12px; padding:1rem; margin-bottom:1rem; color:#57606a; text-decoration:none; }
-    .qr-admin-preview[aria-disabled="true"] { cursor:not-allowed; }
-    .qr-admin-preview img { width:min(280px, 100%); aspect-ratio:1; object-fit:contain; display:block; }
-    .qr-admin-preview span { font-size:.78rem; font-weight:600; }
-    @media (max-width: 760px) { .admin-grid { grid-template-columns:1fr; } .sidebar { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); } .grid-2 { grid-template-columns:1fr; } }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
   <div class="admin-header">
@@ -68,20 +15,20 @@
     </div>
     <div style="display:flex;align-items:center;gap:1rem">
       <a href="index.html" style="color:#8b949e;font-size:.85rem;text-decoration:none">&#128065; View Site</a>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+      <button class="logout-btn" type="button" data-action="logout">Logout</button>
     </div>
   </div>
 
   <div class="admin-container">
     <div class="admin-grid">
       <div class="sidebar">
-        <button class="sidebar-btn active" onclick="showSection('schedule')">&#128197; Schedule</button>
-        <button class="sidebar-btn" onclick="showSection('lessons')">&#128218; Lessons</button>
-        <button class="sidebar-btn" onclick="showSection('dates')">&#9200; Important Dates</button>
-        <button class="sidebar-btn" onclick="showSection('contacts')">&#128222; Contacts</button>
-        <button class="sidebar-btn" onclick="showSection('qr')">&#128241; QR Code</button>
-        <button class="sidebar-btn" onclick="showSection('classroom')">&#127891; Classroom</button>
-        <button class="sidebar-btn" onclick="showSection('publish')">&#128640; Publish Changes</button>
+        <button class="sidebar-btn active" data-action="show-section" data-section="schedule">&#128197; Schedule</button>
+        <button class="sidebar-btn" data-action="show-section" data-section="lessons">&#128218; Lessons</button>
+        <button class="sidebar-btn" data-action="show-section" data-section="dates">&#9200; Important Dates</button>
+        <button class="sidebar-btn" data-action="show-section" data-section="contacts">&#128222; Contacts</button>
+        <button class="sidebar-btn" data-action="show-section" data-section="qr">&#128241; QR Code</button>
+        <button class="sidebar-btn" data-action="show-section" data-section="classroom">&#127891; Classroom</button>
+        <button class="sidebar-btn" data-action="show-section" data-section="publish">&#128640; Publish Changes</button>
       </div>
 
       <div class="editor-panel">
@@ -105,8 +52,8 @@
               </div>
             </div>
             <div class="actions-row">
-              <button class="btn-save" type="button" onclick="importScheduleCsv()">Import CSV</button>
-              <button class="btn-secondary" type="button" onclick="downloadScheduleTemplate()">Download CSV Template</button>
+              <button class="btn-save" type="button" data-action="import-schedule-csv">Import CSV</button>
+              <button class="btn-secondary" type="button" data-action="download-schedule-template">Download CSV Template</button>
             </div>
             <div class="status-bar" id="status-schedule-import"></div>
           </div>
@@ -114,16 +61,16 @@
             <thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Teacher</th><th>Room</th><th></th></tr></thead>
             <tbody id="schedule-body"></tbody>
           </table>
-          <button class="btn-add-row" onclick="addScheduleRow()">+ Add Row</button>
-          <button class="btn-save" onclick="saveSection('schedule')">Save &amp; Preview</button>
+          <button class="btn-add-row" type="button" data-action="add-schedule-row">+ Add Row</button>
+          <button class="btn-save" type="button" data-action="save-section" data-section="schedule">Save &amp; Preview</button>
           <div class="status-bar" id="status-schedule">Saved. Go to Publish to deploy.</div>
         </div>
 
         <div id="section-lessons" style="display:none">
           <h2>&#128218; Lessons</h2>
           <div id="lessons-list"></div>
-          <button class="btn-add-row" onclick="addLesson()">+ Add Lesson</button>
-          <button class="btn-save" onclick="saveSection('lessons')">Save &amp; Preview</button>
+          <button class="btn-add-row" type="button" data-action="add-lesson">+ Add Lesson</button>
+          <button class="btn-save" type="button" data-action="save-section" data-section="lessons">Save &amp; Preview</button>
           <div class="status-bar" id="status-lessons">Saved.</div>
         </div>
 
@@ -133,16 +80,16 @@
             <thead><tr><th>Date</th><th>Event</th><th>Style</th><th></th></tr></thead>
             <tbody id="dates-body"></tbody>
           </table>
-          <button class="btn-add-row" onclick="addDateRow()">+ Add Date</button>
-          <button class="btn-save" onclick="saveSection('dates')">Save &amp; Preview</button>
+          <button class="btn-add-row" type="button" data-action="add-date-row">+ Add Date</button>
+          <button class="btn-save" type="button" data-action="save-section" data-section="dates">Save &amp; Preview</button>
           <div class="status-bar" id="status-dates">Saved.</div>
         </div>
 
         <div id="section-contacts" style="display:none">
           <h2>&#128222; Contacts</h2>
           <div id="contacts-list"></div>
-          <button class="btn-add-row" onclick="addContact()">+ Add Contact</button>
-          <button class="btn-save" onclick="saveSection('contacts')">Save &amp; Preview</button>
+          <button class="btn-add-row" type="button" data-action="add-contact">+ Add Contact</button>
+          <button class="btn-save" type="button" data-action="save-section" data-section="contacts">Save &amp; Preview</button>
           <div class="status-bar" id="status-contacts">Saved.</div>
         </div>
 
@@ -161,8 +108,8 @@
                 <p class="help-text">SVG, PNG, JPEG, or WebP. Maximum file size: 500 KB.</p>
               </div>
               <div class="actions-row">
-                <button class="btn-save" type="button" onclick="saveSection('qr')">Save &amp; Preview</button>
-                <button class="btn-secondary" type="button" onclick="resetQrCode()">Restore included QR</button>
+                <button class="btn-save" type="button" data-action="save-section" data-section="qr">Save &amp; Preview</button>
+                <button class="btn-secondary" type="button" data-action="reset-qr">Restore included QR</button>
               </div>
               <div class="status-bar" id="status-qr">Saved.</div>
             </div>
@@ -194,7 +141,7 @@
             <label for="classroom-course-list">Classroom IDs</label>
             <textarea id="classroom-course-list" placeholder="Algebra 101 | 1234567890&#10;Physics | 2345678901"></textarea>
             <p class="help-text">One classroom per line. Use <strong>Name | courseId</strong> or just the course ID.</p>
-            <button class="btn-secondary" type="button" onclick="saveClassroomSettings()">Save Classroom Settings</button>
+            <button class="btn-secondary" type="button" data-action="save-classroom-settings">Save Classroom Settings</button>
           </div>
           <div class="grid-2">
             <div class="field-group">
@@ -208,9 +155,9 @@
           </div>
           <p class="help-text">CSV headers: <strong>title,description,topic,topicId,scheduledAt,dueAt,maxPoints,materialUrl,workType,state,choices</strong>. Use ISO date/time values for scheduledAt and dueAt.</p>
           <div class="actions-row">
-            <button class="btn-save" type="button" onclick="previewClassroomCsv()">Preview CSV</button>
-            <button class="btn-secondary" type="button" onclick="downloadClassroomTemplate()">Download Task CSV Template</button>
-            <button class="btn-save" type="button" onclick="sendClassroomTasks()">Send to Classroom</button>
+            <button class="btn-save" type="button" data-action="preview-classroom-csv">Preview CSV</button>
+            <button class="btn-secondary" type="button" data-action="download-classroom-template">Download Task CSV Template</button>
+            <button class="btn-save" type="button" data-action="send-classroom-tasks">Send to Classroom</button>
           </div>
           <div class="status-bar" id="status-classroom"></div>
           <div class="preview-wrap">
@@ -237,7 +184,7 @@
             <label>Commit Message</label>
             <input type="text" id="commit-msg" value="Admin: Update content via dashboard">
           </div>
-          <button class="btn-save" onclick="publishChanges()">&#128640; Publish to GitHub</button>
+          <button class="btn-save" type="button" data-action="publish-changes">&#128640; Publish to GitHub</button>
           <div class="status-bar" id="status-publish" style="font-size:.9rem"></div>
         </div>
       </div>
@@ -246,6 +193,11 @@
 
   <script src="auth-config.js"></script>
   <script src="data.js"></script>
-  <script src="admin.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/admin/core.js"></script>
+  <script src="js/admin/csv.js"></script>
+  <script src="js/admin/editors.js"></script>
+  <script src="js/admin/classroom.js"></script>
+  <script src="js/admin/publish.js"></script>
 </body>
 </html>

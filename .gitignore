@@ -1,0 +1,3 @@
+# Local Claude Code launch config — keep out of the deployed Pages artifact.
+.claude/
+.DS_Store

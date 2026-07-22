@@ -1,99 +1,73 @@
-# DIPCC Classroom — College Information
+# DIPCC Classroom — College Information Site
 
-Welcome to the official informational page for DIPCC Classroom. Here you will find everything you need: schedule, lessons, important dates, and more.
+Static GitHub Pages site for DIPCC Classroom students: weekly schedule, lessons and topics, important dates, contacts, and a clickable QR code. Content is bilingual (Ukrainian by default, English toggle) and editable through a built-in admin dashboard — no build step, no framework.
 
-The public page includes a clickable QR code. Administrators can replace the QR image and update its destination URL from the **QR Code** section of the admin dashboard, preview the result, and publish it through the existing GitHub workflow.
+Live site: https://dipccclassroom.github.io/info.github.io/
 
----
+## Pages
 
-## 📅 Weekly Schedule
+| Page | Purpose |
+|------|---------|
+| `index.html` | Public information hub (schedule, lessons, dates, contacts, QR code, search) |
+| `login.html` | Password login for the Student/Viewer and Admin roles |
+| `admin.html` | Admin dashboard: edit all content, import CSVs, push Classroom tasks, publish |
 
-| Day       | Time          | Subject              | Teacher        | Room   |
-|-----------|---------------|----------------------|----------------|--------|
-| Monday    | 09:00 – 10:30 | Mathematics          | Prof. Smith    | 101    |
-| Monday    | 11:00 – 12:30 | English Literature   | Prof. Johnson  | 204    |
-| Tuesday   | 09:00 – 10:30 | Physics              | Prof. Lee      | Lab 1  |
-| Tuesday   | 11:00 – 12:30 | History              | Prof. Garcia   | 305    |
-| Wednesday | 09:00 – 10:30 | Computer Science     | Prof. Patel    | Lab 2  |
-| Wednesday | 11:00 – 12:30 | Chemistry            | Prof. Brown    | Lab 3  |
-| Thursday  | 09:00 – 10:30 | Mathematics          | Prof. Smith    | 101    |
-| Thursday  | 11:00 – 12:30 | Physical Education   | Coach Miller   | Gym    |
-| Friday    | 09:00 – 10:30 | English Literature   | Prof. Johnson  | 204    |
-| Friday    | 11:00 – 12:30 | Free Study / Elective| —              | Library|
+## Project structure
 
----
+```
+├── index.html            Public site
+├── login.html            Role login
+├── admin.html            Admin dashboard (requires admin session)
+├── data.js               Site content (generated — overwritten by admin publishing)
+├── auth-config.js        Password hashes (placeholders injected by the deploy workflow)
+├── qr-code.svg           Default QR code image
+├── css/
+│   ├── style.css         Public site styles
+│   ├── login.css         Login page styles
+│   └── admin.css         Admin dashboard styles
+├── js/
+│   ├── utils.js          Shared helpers (clone, URL/image sanitizers)
+│   ├── i18n.js           UI translations (uk/en) and language persistence
+│   ├── main.js           Public site rendering, search, schedule filter
+│   ├── login.js          Login flow (SHA-256 hash check, role session)
+│   └── admin/
+│       ├── core.js       Session guard, shared state, data-action registry
+│       ├── csv.js        CSV parse/serialize helpers
+│       ├── editors.js    Schedule/lessons/dates/contacts/QR editors
+│       ├── classroom.js  Google Classroom task upload via Apps Script bridge
+│       └── publish.js    Publishes data.js through the GitHub contents API
+├── apps-script/
+│   └── classroom-bridge/ Apps Script Web App that creates Classroom coursework
+└── .github/workflows/deploy.yml  GitHub Pages deployment
+```
 
-## 📚 Lessons & Topics
+Script load order matters (plain scripts, no modules): `data.js` and `js/utils.js` load first and expose `window.DIPCC_*` globals that the rest of the code reads.
 
-### Mathematics
-- Week 1: Algebra — Linear Equations
-- - Week 2: Algebra — Quadratic Equations
-  - - Week 3: Trigonometry — Sine, Cosine, Tangent
-    - - Week 4: Calculus — Introduction to Derivatives
-     
-      - ### English Literature
-      - - Week 1: Short Story Analysis
-        - - Week 2: Poetry — Romantics
-          - - Week 3: Essay Writing Techniques
-            - - Week 4: Novel Study — Selected Reading
-             
-              - ### Physics
-              - - Week 1: Mechanics — Newton's Laws
-                - - Week 2: Kinematics
-                  - - Week 3: Energy & Work
-                    - - Week 4: Electricity & Circuits
-                     
-                      - ### Computer Science
-                      - - Week 1: Introduction to Programming
-                        - - Week 2: Variables, Loops, and Functions
-                          - - Week 3: Data Structures
-                            - - Week 4: Algorithms & Problem Solving
-                             
-                              - ### History
-                              - - Week 1: Ancient Civilizations
-                                - - Week 2: The Middle Ages
-                                  - - Week 3: Renaissance & Reformation
-                                    - - Week 4: Modern History
-                                     
-                                      - ### Chemistry
-                                      - - Week 1: Atoms & Periodic Table
-                                        - - Week 2: Chemical Bonds
-                                          - - Week 3: Reactions & Equations
-                                            - - Week 4: Acids, Bases & pH
-                                             
-                                              - ---
+## How content updates work
 
-                                              ## 📌 Important Dates
+1. An admin signs in on `login.html` and edits content in `admin.html`.
+2. Edits are saved as a draft in `localStorage`; the public page shows the draft to the admin only, for preview.
+3. **Publish Changes** commits a regenerated `data.js` to `main` via the GitHub contents API using the admin's fine-grained personal access token (Contents: Read & Write).
+4. The push triggers the deploy workflow, and GitHub Pages serves the update in about a minute.
 
-                                              | Date            | Event                                |
-                                              |-----------------|--------------------------------------|
-                                              | September 1     | First Day of Classes                 |
-                                              | October 15      | Midterm Exams Begin                  |
-                                              | October 20      | Midterm Exams End                    |
-                                              | November 1      | Project Submission Deadline          |
-                                              | December 20     | Last Day of Classes (Semester 1)     |
-                                              | January 15      | Start of Semester 2                  |
-                                              | March 10        | Final Exams Begin                    |
-                                              | March 20        | Final Exams End                      |
-                                              | June 15         | Graduation Ceremony                  |
+`data.js` is machine-generated by `js/admin/publish.js` (`buildDataFile`) — don't hand-edit it beyond content fixes, and keep it at the repo root, since the dashboard targets that path.
 
-                                              ---
+## Authentication
 
-                                              ## 📞 Contacts & Resources
+Login compares a SHA-256 hash of the entered password against hashes in `auth-config.js`. The deploy workflow replaces the `__ADMIN_HASH__` / `__VIEWER_HASH__` placeholders with the `ADMIN_PASSWORD_HASH` and `VIEWER_PASSWORD_HASH` repository secrets; without secrets it falls back to the defaults (`admin123` / `viewer123` — change these for real use).
 
-                                              - **Classroom email:** dipccclassroom@example.com
-                                              - - **Office hours:** Monday–Friday, 08:00–17:00
-                                                - - **Library:** Open Monday–Saturday, 08:00–20:00
-                                                 
-                                                  - ---
+This is lightweight client-side gating for a public site, not real security: all content is in the repo, and the admin role only unlocks the editing UI. Publishing still requires a GitHub token with write access.
 
-                                                  ## 🔗 Useful Links
+## Google Classroom bridge
 
-                                                  - [College Website](#)
-                                                  - - [Online Library](#)
-                                                    - - [Student Portal](#)
-                                                      - - [Course Catalog](#)
-                                                       
-                                                        - ---
+The admin dashboard can bulk-create Classroom coursework from a CSV. It talks to an Apps Script Web App you deploy from `apps-script/classroom-bridge/` (see its README), authenticated by a shared secret kept in `sessionStorage` only.
 
-                                                        *Last updated: June 2026. To suggest changes, please contact the administrator.*
+## Local development
+
+Serve the folder over HTTP (needed for `fetch` and storage APIs to behave like production):
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000/`. To reach the admin dashboard locally, sign in through `login.html` with the default admin password.
