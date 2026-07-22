@@ -1,0 +1,16 @@
+/* Login page styles. Loaded after style.css. */
+body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg-dark,#0d1117); }
+.login-card { background:var(--card-bg,#161b22); border:1px solid var(--border,#30363d); border-radius:12px; padding:2.5rem 2rem; width:100%; max-width:380px; box-shadow:0 8px 32px rgba(0,0,0,.4); }
+.login-card h1 { font-size:1.5rem; color:var(--accent,#4fc3f7); margin-bottom:.25rem; }
+.login-card p { color:#8b949e; font-size:.875rem; margin-bottom:1.5rem; }
+.login-card label { display:block; color:#c9d1d9; font-size:.875rem; margin-bottom:.4rem; }
+.login-card input { width:100%; padding:.65rem .9rem; background:#0d1117; border:1px solid #30363d; border-radius:6px; color:#c9d1d9; font-size:1rem; box-sizing:border-box; margin-bottom:1rem; }
+.login-card input:focus { outline:none; border-color:#4fc3f7; }
+.btn-primary { width:100%; padding:.75rem; background:var(--accent,#4fc3f7); color:#0d1117; font-weight:700; font-size:1rem; border:none; border-radius:6px; cursor:pointer; }
+.btn-primary:hover { background:#29b6f6; }
+.error-msg { color:#f85149; font-size:.85rem; text-align:center; margin-top:.75rem; display:none; }
+.role-tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+.role-tab { flex:1; padding:.5rem; background:#0d1117; border:1px solid #30363d; border-radius:6px; color:#8b949e; cursor:pointer; font-size:.85rem; text-align:center; }
+.role-tab.active { border-color:#4fc3f7; color:#4fc3f7; background:#111827; }
+.admin-link { display:block; text-align:center; margin-top:1rem; color:#8b949e; font-size:.8rem; }
+.admin-link a { color:#4fc3f7; text-decoration:none; }
